@@ -1,0 +1,1 @@
+export type FormattedType = "info" | "error" | "success"

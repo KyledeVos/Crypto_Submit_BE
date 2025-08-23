@@ -1,0 +1,1 @@
+export type development_env= "development" | "production"
