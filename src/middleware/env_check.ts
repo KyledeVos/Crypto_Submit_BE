@@ -24,6 +24,11 @@ export const serverVariablesCheck = (
         //server_port conversion
         let server_port_number_env: number | undefined = undefined
 
+        // dev check if env values were simply not set
+        if(server_url_env === undefined && server_port_env === undefined && server_mode_env === undefined){
+            return "Missing Server ENV values - check if the .env was created with .env_blank template and values added"
+        }
+
         // check url
         if(!server_url_env || typeof server_url_env === undefined || server_url_env.trim() === ""){
             return "Missing Server URL";

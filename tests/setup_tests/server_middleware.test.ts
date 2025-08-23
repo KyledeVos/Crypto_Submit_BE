@@ -101,13 +101,14 @@ describe('testing server setup middleware', ()=>{
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
 
-    test('Fail Case 9 - pass undefined to all - simulate missing env field, Must stop at url', () => {
+    test('Fail Case 9 - pass undefined to all - simulate missing env field and ask if env was set', () => {
         const server_url_env = undefined;
         const server_port_env = undefined;
         const server_mode_env = undefined
 
-        const expectedResult = "Missing Server URL"
+        const expectedResult = "Missing Server ENV values - check if the .env was created with .env_blank template and values added"
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
+    
 })
