@@ -12,6 +12,7 @@ import { corsMiddleWare} from './middleware/cors_middleware'
 import {createDatabasePool, setDatabaseValues, checkDatabaseConnection} from "./database_config"
 import {serverVariablesCheck, validateSetDatabaseConnectValues, validateCoinAPIKey} from "./middleware/env_check"
 import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
+import {getLatestData} from "../src/services/crypto_service"
 
 dotenv.config()
 
@@ -169,6 +170,8 @@ const serverStart = async() => {
         console.log(chalk.green("======================"))
         console.log(chalk.yellow("=============================="))
     })
+
+    await getLatestData();
 }
 
 // call for server startup
