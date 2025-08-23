@@ -1,19 +1,26 @@
-import dotenv from 'dotenv'
-import {development_env, serverSetUp} from '../types/server_types'
+/**
+ * @module env_check.ts
+ * This module provides functions to validate data used by the server during setup
+ * Imports types for data consistency and safeguarding returns
+ */
 
-dotenv.config()
-
-
+import {serverSetUp} from '../types/server_types'
 
 /**
  * Validates the .env fields used to start the server
- * @returns An object containing the data to start the server or an error message string if an error occurs
+ * @param server_url_env - could be string or null
+ * @param server_port_env - could be string or null
+ * @param server_mode_env - could be string or null
+ * @returns String if there is an error, Object containing server_url (string), server_port (number), server_mode of type 'development_env'
+ * @throws an error if types are mismatched or conversion of port from string to number fails. Returns a string
  */
-export const serverVariablesCheck = (server_url_env: string, server_port_env: string | null, server_mode_env: string | null ):serverSetUp | string => {
+export const serverVariablesCheck = (
+        server_url_env: string, 
+        server_port_env: string | null, 
+        server_mode_env: string | null 
+    ):serverSetUp | string => {
 
     try{
-        
-
         //server_port conversion
         let server_port_number_env: number | null = null
 
@@ -45,16 +52,14 @@ export const serverVariablesCheck = (server_url_env: string, server_port_env: st
         }
 
         // success return
-        return {
+        const dataReturn: serverSetUp = {
             server_url: server_url_env,
             server_port: server_port_number_env,
             server_mode: server_mode_env
         }
+        return dataReturn
 
     }catch(error){
         return `Error occured during server env checks as: ${error}`
     }
-
-
-
 }

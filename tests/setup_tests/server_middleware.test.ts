@@ -1,6 +1,10 @@
+/**
+ * @module server_middleware.test.ts
+ * This is a testing module containing functions to test the server middleware functions
+ */
+
 import {serverVariablesCheck} from "../../src/middleware/env_check"
-import {development_env, serverSetUp} from '../../src/types/server_types'
-import {describe, it, test, expect} from "@jest/globals"
+import {describe, test, expect} from "@jest/globals"
 
 describe('testing server setup middleware', ()=>{
     test('Success Test', () => {

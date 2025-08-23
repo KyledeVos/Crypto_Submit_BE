@@ -1,3 +1,9 @@
+/**
+ * @module server.ts
+ * This module is the starting point of the application and is used to call for:
+ * - CORS setup, server fields set, database configuration and project startup
+ */
+
 import express from 'express'
 import { corsMiddleWare } from './src/middleware/cors_middleware'
 import dotenv from 'dotenv'
@@ -23,6 +29,7 @@ const server_url_env: string = process.env.SERVER_URL || 'localhost'
 const server_port_env: string | null = process.env.SERVER_PORT || null
 const server_mode_env: development_env | null = (process.env.MODE as development_env) || null
 
+// Validate and assign server fields (URL, PORT and MODE) for server run
 const serverSetUpData: serverSetUp | string  = serverVariablesCheck(server_url_env, server_port_env, server_mode_env)
 if(serverSetUpData === null){
     console.log(chalk.red("No Return for Server Data Checks - Process Terminated"))
@@ -37,7 +44,7 @@ if(serverSetUpData === null){
         process.exit()
     }
 }else{
-    // Server Setup data must be a json
+    // Server Setup data must be an object
     if(typeof serverSetUpData !== "object"){
       console.log(chalk.red("Server Data Setup return is non-object - Process Terminated"))
       process.exit();

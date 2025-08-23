@@ -6,7 +6,7 @@
     "start": "ts-node server.ts",
     "docs": "typedoc --entryPoints src --entryPointStrategy expand",
     "test_all": "jest",
-    "test_server": "jest server_middleware_tests.test.ts"
+    "test_server": "jest server_middleware.test.ts"
   },
   "keywords": [],
   "author": "",
