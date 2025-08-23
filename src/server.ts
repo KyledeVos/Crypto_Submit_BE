@@ -9,7 +9,7 @@ import dotenv from 'dotenv'
 import chalk from 'chalk'
 import {Pool} from 'mariadb'
 import { corsMiddleWare} from './middleware/cors_middleware'
-import {createDatabasePool, setDatabaseValues} from "./database_config"
+import {createDatabasePool, setDatabaseValues, checkDatabaseConnection} from "./database_config"
 import {serverVariablesCheck, validateSetDatabaseConnectValues, validateCoinAPIKey} from "./middleware/env_check"
 import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
 
@@ -120,7 +120,6 @@ console.log(chalk.green("Coin API Present Validation Completed\n"))
 // ------------------------
 
 // Create Database Pool
-
 let poolConnection: Pool | undefined = undefined
 
 /**
@@ -155,7 +154,9 @@ const poolConnectionHandler = async () => {
  * An async handler to await the promise from 'poolConnectionHandler' and then start up the server
  */
 const serverStart = async() => {
+    // Call for creation of connection pool - also performs a first connection query to validate connection on startup
     poolConnection = await poolConnectionHandler();
+
     console.log(chalk.green("Database Connnection Pool Created\n"))
 
     // Start the Server and display running info
@@ -172,13 +173,6 @@ const serverStart = async() => {
 
 // call for server startup
 serverStart();
-
-
-
-
-
-
-
 
 // simple route for basic testing
 app.get('/hello', (req, res) => {
