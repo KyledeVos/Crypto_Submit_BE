@@ -5,11 +5,12 @@
  */
 
 import express from 'express'
-import { corsMiddleWare } from './src/middleware/cors_middleware'
+import mariaDB from "mariadb"
 import dotenv from 'dotenv'
 import chalk from 'chalk'
-import {serverVariablesCheck} from "./src/middleware/env_check"
-import {serverSetUp, development_env} from "./src/types/server_types"
+import { corsMiddleWare } from './middleware/cors_middleware'
+import {serverVariablesCheck} from "./middleware/env_check"
+import {serverSetUp, development_env} from "./types/server_types"
 
 dotenv.config()
 
@@ -25,9 +26,9 @@ app.use(corsMiddleWare)
 // Validate Server Start Fields
 
 // server variables
-const server_url_env: string | null= process.env.SERVER_URL || null
-const server_port_env: string | null = process.env.SERVER_PORT || null
-const server_mode_env: development_env | null = (process.env.MODE as development_env) || null
+const server_url_env: string | undefined = process.env.SERVER_URL || undefined
+const server_port_env: string | undefined = process.env.SERVER_PORT || undefined
+const server_mode_env: development_env | undefined = (process.env.MODE as development_env) || undefined
 
 // Validate and assign server fields (URL, PORT and MODE) for server run
 const serverSetUpData: serverSetUp | string  = serverVariablesCheck(server_url_env, server_port_env, server_mode_env)
@@ -44,7 +45,7 @@ if(serverSetUpData === null){
         process.exit()
     }
 }else{
-    // Server Setup data must be an object
+    // Server Setup data must be an object - This is a strange case and should not be occuring
     if(typeof serverSetUpData !== "object"){
       console.log(chalk.red("Server Data Setup return is non-object - Process Terminated"))
       process.exit();
@@ -61,6 +62,13 @@ if(serverSetUpData === null){
         }
     }
 }
+// ----------------------
+
+// ----------------------
+
+// Validate and Configure Database Setup
+
+
 // ----------------------
 
 // Start the Server

@@ -15,23 +15,23 @@ import {serverSetUp} from '../types/server_types'
  * @throws an error if types are mismatched or conversion of port from string to number fails. Returns a string
  */
 export const serverVariablesCheck = (
-        server_url_env: string | null, 
-        server_port_env: string | null, 
-        server_mode_env: string | null 
+        server_url_env: string | undefined, 
+        server_port_env: string | undefined, 
+        server_mode_env: string | undefined 
     ):serverSetUp | string => {
 
     try{
         //server_port conversion
-        let server_port_number_env: number | null = null
+        let server_port_number_env: number | undefined = undefined
 
         // check url
-        if(!server_url_env || typeof server_url_env === null || server_url_env.trim() === ""){
-            return "Missing Server URL - Process Terminated";
+        if(!server_url_env || typeof server_url_env === undefined || server_url_env.trim() === ""){
+            return "Missing Server URL";
         }
 
         // check port
-        if(!server_port_env || typeof server_port_env === null || server_port_env.trim() === ""){
-            return "Missing Server Port - Process Terminated"
+        if(!server_port_env || typeof server_port_env === undefined || server_port_env.trim() === ""){
+            return "Missing Server Port"
         }
 
         // ensure server port is a valid number
@@ -45,7 +45,7 @@ export const serverVariablesCheck = (
         }
 
         // check mode has been set
-        if(!server_mode_env || typeof server_mode_env === null || 
+        if(!server_mode_env || typeof server_mode_env === undefined || 
             typeof server_mode_env !== "string" || server_mode_env.trim() === "" ||
             (server_mode_env !== "development" && server_mode_env !== "production")){
             return "Server mode is missing / not properly configured"
