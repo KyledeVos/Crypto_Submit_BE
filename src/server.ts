@@ -7,6 +7,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import chalk from 'chalk'
+import {Pool} from 'mariadb'
 import { corsMiddleWare} from './middleware/cors_middleware'
 import {createDatabasePool, setDatabaseValues} from "./database_config"
 import {serverVariablesCheck, validateSetDatabaseConnectValues} from "./middleware/env_check"
@@ -24,7 +25,6 @@ app.use(corsMiddleWare)
 
 console.log(chalk.yellow("=============================="))
 console.log(chalk.yellow("SERVER STARTUP HAS BEEN CALLED\n"))
-
 
 // VARIABLES FROM .ENV
 // server variables
@@ -53,10 +53,10 @@ if(typeof serverSetUpData === "string"){
         process.exit()
     }
 }
-console.log(chalk.green("Server Fields Validation Completed"))
+console.log(chalk.green("Server Fields Validation Completed\n"))
 // ----------------------
 
-// Validate and Configure Database Setup
+// Validate and Configure Database Setup Values
 console.log(chalk.blue("Called for Database Fields Validation"))
 const databaseValidation =  validateSetDatabaseConnectValues(databaseHost, databaseUser, databasePassword, databasePort, databaseConnectionLimit);
 if(databaseValidation === undefined){
@@ -86,25 +86,71 @@ if(databaseValidation === undefined){
         console.log(chalk.red("Process Terminated"))
         process.exit()
     }else{
+        // Success Case - Set the DB values from .env
         setDatabaseValues(databaseValidation.databaseData)
     }
 }
-console.log(chalk.green("Database Fields Validation Completed"))
+console.log(chalk.green("Database Fields Validation Completed\n"))
 // ----------------------
 
-// Start the Server
-// If Validations above fail, console logs show the error and server run will terminate
-// before this
+// Create Database Pool
 
-app.listen(serverSetUpData.server_port, serverSetUpData.server_url, () => {
-    console.log(chalk.green("======================"))
-    console.log(chalk.green("Server Starting. Details:"))
-    console.log(chalk.green("URL:", serverSetUpData.server_url))
-    console.log(chalk.green("PORT:", serverSetUpData.server_port))
-    console.log(chalk.green("MODE:", serverSetUpData.server_mode))
-    console.log(chalk.green("======================"))
-    console.log(chalk.yellow("=============================="))
-})
+let poolConnection: Pool | undefined = undefined
+
+/**
+ * Attempts to retrieve a connectionPool from mariaDB
+ * @returns connectionPool used to create connections or logs an error and then terminates the server run
+ */
+const poolConnectionHandler = async () => {
+    console.log(chalk.blue("Called for Database Connection Pool Creation"))
+    try{
+        const connectionPoolResult = await createDatabasePool()
+        if(connectionPoolResult.connectionPool === undefined){
+            if(connectionPoolResult.errorMessage !== "undefined" && typeof connectionPoolResult.errorMessage === "string" && connectionPoolResult.errorMessage.trim() !== ""){
+                console.log(chalk.red(connectionPoolResult.errorMessage))
+            }else{
+                console.log("Error during DB Connection pool creation, no error message provided.")
+            }
+            console.log(chalk.red("Process Terminated"))
+            process.exit()
+        }else{
+            // Success Case
+            return connectionPoolResult.connectionPool;
+            
+        }
+    }catch(error){
+        console.log(chalk.red(`Error occurred trying to create database connection pool as: ${error}`))
+        console.log(chalk.red("Process Terminated"))
+        process.exit()
+    }
+}
+
+/**
+ * An async handler to await the promise from 'poolConnectionHandler' and then start up the server
+ */
+const serverStart = async() => {
+    poolConnection = await poolConnectionHandler();
+    console.log(chalk.green("Database Connnection Pool Created\n"))
+
+    // Start the Server and display running info
+    app.listen(serverSetUpData.server_port, serverSetUpData.server_url, () => {
+        console.log(chalk.green("======================"))
+        console.log(chalk.green("Server Starting. Details:"))
+        console.log(chalk.green("URL:", serverSetUpData.server_url))
+        console.log(chalk.green("PORT:", serverSetUpData.server_port))
+        console.log(chalk.green("MODE:", serverSetUpData.server_mode))
+        console.log(chalk.green("======================"))
+        console.log(chalk.yellow("=============================="))
+    })
+}
+
+// call for server startup
+serverStart();
+
+
+
+
+
 
 
 

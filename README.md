@@ -11,7 +11,7 @@ of also generating html doc files. The script to run it is in the package.json b
 1. The safety of these requirements is of the highest importance.<br>
 In this project you will see a .env_blank. The .env_blank<br>
 files contains the names of secure fields that the application uses but <br> has no actual data. The actual data goes in an untracked file that you need to create as '.env' created at the project root. Inside of this <br> file you will put the ACTUAL data.
-**NOTE:** Do not ever put actual data in the .env_example or change the .git_ignore file to track a .env file. Doing so will make your confidential<br>
+**NOTE:** Do not ever put actual data in the .env_blank or change the .git_ignore file to track a .env file. Doing so will make your confidential<br>
 data readily available on GitHub for users and bots to take.
 
 2. If you are modifying the project - NEVER use hard coded secure values / keys<br> in the project files. These values go in the .env file and absolutely nowhere else. Do NOT even add these values in temporarily to the code.
@@ -23,19 +23,16 @@ You will need a few services installed on your machine as well which is in the s
 ### File Setup
 After cloning the repos, at the project root you will need to create a .env file<br>
 Then copy the contents of the .env_blank file into your created '.env' file.<br>
-For the steps below, do **NOT** set any of the information in the .env_blank' file. **ONLY** do so in your newly created .env file.
 
-- 'VITE_SERVER_URL'.<br>
-This is the domain on which your server will run. 
-If you are doing it on local, set it to: "http://localhost"
+### API KEY
+This is a **DEMO** Project and is not intended for professional use. It does use an API key from 'CoinMarketCap'<br>
+You will need to visit their site, create an account and then get an API key to use in this project.<br>
+After you have created your .env from the .env_blank file, add your key next to the COIN_API_KEY field<br>
+You are solely responsible for the use of services from 3rd party and must do so in accordace <br>
+with their policies. Again, this is a student demo project and not meant for professional use.
 
-- SERVER_PORT
-This is the port on which the BE server will run and you will need to match this port on the Frontend project.
-
+**NOTE:** A Missing key will fail server startup validations and terminate the server run
  
-
-
-
 ### MariaDB
 1. This project uses **MariaDB** for the database. To make use of this you will need MariaDB<br>
 to be installed on your machine. The following is the installation process for windows but<br>

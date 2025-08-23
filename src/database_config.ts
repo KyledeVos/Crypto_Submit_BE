@@ -1,4 +1,9 @@
-import mariaDB from "mariadb"
+/**
+ * @module database_config.ts
+ * This module acts as a governor for the database pool and is called by the server.ts to create
+ * a database pool. It is crucial that the server.ts already validated .env data before population here.
+ */
+import mariaDB, {Pool} from "mariadb"
 import {databaseSetUpType} from "./types/server_database_types"
 
 // define database connection values
@@ -9,23 +14,31 @@ let dbPortValidated: number | undefined = undefined
 let dbConnectionLimitValidated: number | undefined = undefined
 
 
-export const createDatabasePool = async ():Promise<{hasStarted: boolean, errorMessage?: string}> => {
+/**
+ * Attempts to create a maria DB Connection
+ * @returns object with connectionPool used to create connections or undefined if failed, errorMessage if failure
+ */
+export const createDatabasePool = async ():Promise<{connectionPool: Pool | undefined, errorMessage?: string}> => {
 
     try{
-        const dbConnection = mariaDB.createPool({
+        const dbConnection:Pool = mariaDB.createPool({
             host: dbHostNameValidated,
             user: dbUserValidated,
             password: dbPasswordValidated,
             port: dbPortValidated,
             connectionLimit: dbConnectionLimitValidated
         })
-        return {hasStarted: true}
+        return {connectionPool: dbConnection}
 
     }catch(error){
-        return {hasStarted: false, errorMessage: `Error occured in Database connection attempt as: ${error}`}
+        return {connectionPool: undefined, errorMessage: `Error occured in Database connection attempt as: ${error}`}
     }
 }
 
+/**
+ * Sets database values in this module, but relies on validation being completed first
+ * @param data of type databaseSetUpType containing validated host, user, password, port and connection limit for database pool
+ */
 export const setDatabaseValues = (data:databaseSetUpType) => {
     dbHostNameValidated = data.dbHostName
     dbUserValidated = data.dbUser
