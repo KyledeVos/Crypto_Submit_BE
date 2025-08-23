@@ -18,5 +18,6 @@ export type databaseSetUpType = {
     dbHostName: string;
     dbUser: string;
     dbPassword:string;
+    dbPort: number;
     dbConnectionLimit: number;
 }

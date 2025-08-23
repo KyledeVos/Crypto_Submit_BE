@@ -4,7 +4,7 @@
  * Imports types for data consistency and safeguarding returns
  */
 
-import {serverSetUp} from '../types/server_database_types'
+import {serverSetUp, databaseSetUpType} from '../types/server_database_types'
 
 /**
  * Validates the .env fields used to start the server
@@ -19,7 +19,6 @@ export const serverVariablesCheck = (
         server_port_env: string | undefined, 
         server_mode_env: string | undefined 
     ):serverSetUp | string => {
-
     try{
         //server_port conversion
         let server_port_number_env: number | undefined = undefined
@@ -66,5 +65,76 @@ export const serverVariablesCheck = (
 
     }catch(error){
         return `Error occured during server env checks as: ${error}`
+    }
+}
+
+
+export const validateSetDatabaseConnectValues = (
+    dbHostName: string | undefined,
+    dbUser: string | undefined,
+    dbPassword: string | undefined,
+    dbPort: string | undefined,
+    dbConnectionLimit: string | undefined 
+): {error: boolean, message?: string, databaseData?: databaseSetUpType} => {
+
+    // dev quick check that the .env was created and populated
+    if(dbHostName === undefined && dbUser === undefined && dbPassword === undefined && dbPort === undefined && dbConnectionLimit === undefined){
+        return {error: true, message: "Missing Server ENV values - check if the .env was created with .env_blank template and values added"}
+    }
+
+    try{
+        // blank or missing checks
+        if(!dbHostName || dbHostName === undefined || typeof dbHostName !== "string" || dbHostName.trim() === ""){
+            return {error: true, message: "Missing DB Host Name"}
+        }else if(!dbUser || dbUser === undefined || typeof dbUser !== "string" || dbUser.trim() === ""){
+            return {error: true, message: "Missing DB User"}
+        }else if(!dbPassword || dbPassword === undefined || typeof dbPassword !== "string" || dbPassword.trim() === ""){
+            return {error: true, message: "Missing DB Password"}
+        }else if(!dbPort || dbPort === undefined || typeof dbPort !== "string" || dbPort.trim() === ""){
+            return {error: true, message: "Missing DB Port"}
+        }else if(!dbConnectionLimit || dbConnectionLimit === undefined || typeof dbConnectionLimit !== "string" || dbConnectionLimit.trim() === ""){
+            return {error: true, message: "Missing DB Connection Limit"}
+        }
+
+        let dbPortNumber: number | undefined = undefined
+        let dbConnectionLimitNumber: number | undefined = undefined
+
+        // attempt to cast database port to an integer
+        try{
+            dbPortNumber = Number(dbPort)
+            if(!Number.isInteger(dbPortNumber) || Number.isNaN(dbPortNumber)){
+                return {error: true, message: "Database Port is not a Valid Integer"}
+            }else if(dbPortNumber <= 0){
+                return {error: true, message: "Database Port is less than or equal to 0"}
+            }
+        }catch(error){
+            return {error: true, message: `Error occured in validateSetDatabaseConnectValues for database port cast as: ${error}`}
+        }
+
+        // attempt to cast connection limit to an integer
+        try{
+            dbConnectionLimitNumber = Number(dbConnectionLimit)
+            if(!Number.isInteger(dbConnectionLimitNumber) || Number.isNaN(dbConnectionLimitNumber)){
+                return {error: true, message: "Database Connection Limit is not a Valid Integer"}
+            }else if(dbConnectionLimitNumber <= 0){
+                return {error: true, message: "Database Connection Limit is less than or equal to 0"}
+            }
+        }catch(error){
+            return {error: true, message: `Error occured in validateSetDatabaseConnectValues for connection limit cast as: ${error}`}
+        }
+
+        // Data is Valid - set data and return no error
+        return{
+            error: false,
+            databaseData: {
+                dbHostName: dbHostName,
+                dbUser: dbUser,
+                dbPassword: dbPassword,
+                dbPort: dbPortNumber,
+                dbConnectionLimit: dbConnectionLimitNumber
+            }
+        }
+    }catch(error){
+        return {error: true, message: `Error occured in validateSetDatabaseConnectValues as: ${error}`}
     }
 }
