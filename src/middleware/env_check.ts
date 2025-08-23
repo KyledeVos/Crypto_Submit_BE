@@ -68,7 +68,15 @@ export const serverVariablesCheck = (
     }
 }
 
-
+/**
+ * Validates the .env fields used to create a database connection
+ * @param dbHostName - could be string or null
+ * @param dbUser - could be string or null
+ * @param dbPassword - could be string or null
+ * @param dbPort - could be string or null
+ * @param dbConnectionLimit - could be string or null
+ * @returns boolean error, message describing the error. If success, object called 'databaseData' with host, user, password, port and connection limit
+ */
 export const validateSetDatabaseConnectValues = (
     dbHostName: string | undefined,
     dbUser: string | undefined,
@@ -136,5 +144,21 @@ export const validateSetDatabaseConnectValues = (
         }
     }catch(error){
         return {error: true, message: `Error occured in validateSetDatabaseConnectValues as: ${error}`}
+    }
+}
+
+/**
+ * Validates the .env field for the Coin API Key
+ * @param coinKey - could be string or null
+ * @returns boolean error, message describing the error
+ */
+export const validateCoinAPIKey = (
+    coinKey: string | undefined,
+): {error: boolean, message?: string} => {
+
+    if(coinKey === undefined || typeof coinKey !== 'string' || coinKey.trim() === ""){
+        return {error: true, message: "Coin API key is missing / blank"}
+    }else{
+        return{error: false}
     }
 }

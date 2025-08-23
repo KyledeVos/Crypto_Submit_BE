@@ -10,7 +10,7 @@ import chalk from 'chalk'
 import {Pool} from 'mariadb'
 import { corsMiddleWare} from './middleware/cors_middleware'
 import {createDatabasePool, setDatabaseValues} from "./database_config"
-import {serverVariablesCheck, validateSetDatabaseConnectValues} from "./middleware/env_check"
+import {serverVariablesCheck, validateSetDatabaseConnectValues, validateCoinAPIKey} from "./middleware/env_check"
 import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
 
 dotenv.config()
@@ -38,6 +38,9 @@ const databaseUser: string | undefined = process.env.MARIA_DB_USER || undefined
 const databasePassword: string | undefined = process.env.MARIA_DB_PASSWORD || undefined
 const databasePort: string | undefined = process.env.MARIA_DB_PORT || undefined
 const databaseConnectionLimit: string | undefined = process.env.MARIA_DB_CONNECTION_LIMIT || undefined
+
+// coinkey
+const coinAPIKeyEnv: string | undefined = process.env.COIN_API_KEY || undefined
 
 // --------------------------------
 // Validate and assign server fields (URL, PORT and MODE) for server run
@@ -92,6 +95,29 @@ if(databaseValidation === undefined){
 }
 console.log(chalk.green("Database Fields Validation Completed\n"))
 // ----------------------
+
+// Validate presence of Coin API Key
+console.log(chalk.blue("Called for Coin API Present Validation"))
+const validatedCoinAPIKey = validateCoinAPIKey(coinAPIKeyEnv);
+if(validateCoinAPIKey === undefined){
+    console.log(chalk.red("validateCoinAPIKey returned undefined"))
+    console.log(chalk.red("Process Terminated"))
+    process.exit()
+}else if(typeof validatedCoinAPIKey !== "object" || validatedCoinAPIKey.error === undefined){
+    console.log(chalk.red("validateCoinAPIKey return of unknown type"))
+    console.log(chalk.red("Process Terminated"))
+    process.exit()
+}else if(validatedCoinAPIKey.error === true){
+    if(validatedCoinAPIKey.message && typeof validatedCoinAPIKey.message === "string" && validatedCoinAPIKey.message.trim() !== ""){
+        console.log(chalk.red(validatedCoinAPIKey.message))
+    }else{
+        console.log(chalk.red("validateCoinAPIKey has an error, but did not return a message"))
+    }
+    console.log(chalk.red("Process Terminated"))
+    process.exit() 
+}
+console.log(chalk.green("Coin API Present Validation Completed\n"))
+// ------------------------
 
 // Create Database Pool
 
