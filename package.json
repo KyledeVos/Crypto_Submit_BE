@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "start": "ts-node ./src/server.ts",
     "docs": "typedoc --entryPoints src --entryPointStrategy expand",
     "test_all": "jest",
-    "test_server": "jest server_middleware.test.ts"
+    "test_server": "jest server_middleware.test.ts",
+    "test_database_connection": "jest database_middleware.test.ts"
   },
   "keywords": [],
   "author": "",

@@ -4,7 +4,7 @@
  * Imports types for data consistency and safeguarding returns
  */
 
-import {serverSetUp} from '../types/server_types'
+import {serverSetUp} from '../types/server_database_types'
 
 /**
  * Validates the .env fields used to start the server

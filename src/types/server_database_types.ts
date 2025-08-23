@@ -12,3 +12,11 @@ export type serverSetUp = {
     server_port: number;
     server_mode: development_env
 }
+
+// Database Setup Fields
+export type databaseSetUpType = {
+    dbHostName: string;
+    dbUser: string;
+    dbPassword:string;
+    dbConnectionLimit: number;
+}

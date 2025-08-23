@@ -10,7 +10,7 @@ import dotenv from 'dotenv'
 import chalk from 'chalk'
 import { corsMiddleWare } from './middleware/cors_middleware'
 import {serverVariablesCheck} from "./middleware/env_check"
-import {serverSetUp, development_env} from "./types/server_types"
+import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
 
 dotenv.config()
 
@@ -22,14 +22,20 @@ const app = express();
 // setup cors middleware
 app.use(corsMiddleWare)
 
-// --------------------------------
-// Validate Server Start Fields
 
+// VARIABLES FROM .ENV
 // server variables
 const server_url_env: string | undefined = process.env.SERVER_URL || undefined
 const server_port_env: string | undefined = process.env.SERVER_PORT || undefined
 const server_mode_env: development_env | undefined = (process.env.MODE as development_env) || undefined
 
+// database variables
+const database_host: string | undefined = process.env.MARIA_DB_HOST
+const database_user: string | undefined = process.env.MARIA_DB_USER
+const database_password: string | undefined = process.env.MARIA_DB_PASSWORD
+const database_connection_limit: string | undefined = process.env.MARIA_DB_CONNECTION_LIMIT
+
+// --------------------------------
 // Validate and assign server fields (URL, PORT and MODE) for server run
 const serverSetUpData: serverSetUp | string  = serverVariablesCheck(server_url_env, server_port_env, server_mode_env)
 if(serverSetUpData === null){
@@ -64,14 +70,13 @@ if(serverSetUpData === null){
 }
 // ----------------------
 
-// ----------------------
-
 // Validate and Configure Database Setup
 
 
 // ----------------------
 
 // Start the Server
+// If Validations above fail, console logs show the error and server run will terminate
 
 app.listen(serverSetUpData.server_port, serverSetUpData.server_url, () => {
     console.log(chalk.green("======================"))
