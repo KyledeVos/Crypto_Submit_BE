@@ -15,7 +15,7 @@ import {serverSetUp} from '../types/server_types'
  * @throws an error if types are mismatched or conversion of port from string to number fails. Returns a string
  */
 export const serverVariablesCheck = (
-        server_url_env: string, 
+        server_url_env: string | null, 
         server_port_env: string | null, 
         server_mode_env: string | null 
     ):serverSetUp | string => {
@@ -37,7 +37,7 @@ export const serverVariablesCheck = (
         // ensure server port is a valid number
         try{
             server_port_number_env = Number(server_port_env)
-            if(!Number.isInteger){
+            if(!Number.isInteger(server_port_number_env) || Number.isNaN(server_port_number_env)){
                 return "Server port is not a valid int."
             }
         }catch(error){

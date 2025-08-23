@@ -25,7 +25,7 @@ app.use(corsMiddleWare)
 // Validate Server Start Fields
 
 // server variables
-const server_url_env: string = process.env.SERVER_URL || 'localhost'
+const server_url_env: string | null= process.env.SERVER_URL || null
 const server_port_env: string | null = process.env.SERVER_PORT || null
 const server_mode_env: development_env | null = (process.env.MODE as development_env) || null
 
