@@ -5,7 +5,7 @@
  */
 import mariaDB, {Pool, PoolConnection} from "mariadb"
 import {databaseSetUpType} from "./types/server_database_types"
-import {DATABASE_NAME, COIN_TABLE} from "./constants"
+import {DATABASE_NAME_CONST} from "../src/constants"
 
 // define database connection values
 let dbHostNameValidated: string | undefined = undefined
@@ -13,6 +13,9 @@ let dbUserValidated: string | undefined = undefined
 let dbPasswordValidated: string | undefined = undefined
 let dbPortValidated: number | undefined = undefined
 let dbConnectionLimitValidated: number | undefined = undefined
+
+// database connection pool
+let globalDbConnectionPool: Pool | undefined = undefined
 
 /**
  * Sets database values in this module, but relies on validation being completed first
@@ -48,7 +51,17 @@ export const createDatabasePool = async ():Promise<{connectionPool: Pool | undef
         }else if(connectionCheck.error && connectionCheck.errorMessage){
             return {connectionPool: undefined, errorMessage: connectionCheck.errorMessage} 
         }
+
+        // attempt to create database
+        const databaseCreationResult = await createDatabaseVerify(dbConnection);
+        if(databaseCreationResult === undefined){
+            return {connectionPool: undefined, errorMessage: "Failed to create database"}
+        }else if(databaseCreationResult.error && databaseCreationResult.message){
+            return {connectionPool: undefined, errorMessage: connectionCheck.errorMessage} 
+        }
+
         // Success Case
+        globalDbConnectionPool = dbConnection
         return {connectionPool: dbConnection}
 
     }catch(error){
@@ -68,11 +81,11 @@ export const checkDatabaseConnection = async(dbPool: Pool):Promise<{error: boole
     let connection: PoolConnection | undefined = undefined
 
     try{
-        const queryStatement = `SELECT table_name from information_schema.tables WHERE table_schema = '${DATABASE_NAME}'`
+        const queryStatement = `SELECT table_name from information_schema.tables WHERE table_schema = '${DATABASE_NAME_CONST}'`
         connection = await dbPool.getConnection();
         const rows = await connection.query(queryStatement)
         if (rows === undefined){
-            return {error: true, errorMessage: `checkDatabaseConnection failed to connect with database as: ${DATABASE_NAME}`}
+            return {error: true, errorMessage: `checkDatabaseConnection failed to connect with database as: ${DATABASE_NAME_CONST}`}
         }
         return {error: false}
 
@@ -81,4 +94,43 @@ export const checkDatabaseConnection = async(dbPool: Pool):Promise<{error: boole
         return {error:true, errorMessage: `Error occured during attempt to query Database as: ${error}`}
     }   
 
+}
+
+export const createDatabaseVerify = async(dbConnectionPool: Pool):Promise<{error: boolean, message?:string}> => {
+    if (!dbConnectionPool || dbConnectionPool === undefined){
+        return {error: true, message: "createDataBase was not given a connection pool"}
+    }
+
+    if(!DATABASE_NAME_CONST || DATABASE_NAME_CONST === undefined || typeof DATABASE_NAME_CONST !== "string" || DATABASE_NAME_CONST.trim() === ""){
+        return {error: true, message: "Database name in constants is missing"}
+    }
+
+        let connection: PoolConnection | undefined = undefined
+
+    try{
+        const queryStatement = `CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME_CONST}`
+        connection = await dbConnectionPool.getConnection();
+        await connection.query(queryStatement)
+
+        // confirm database does exist
+        const existsStatement = `SHOW DATABASES LIKE '${DATABASE_NAME_CONST}'`
+        const existsCheckResult = await connection.query(existsStatement)
+        if(existsCheckResult && Array.isArray(existsCheckResult) && existsCheckResult.length > 0){
+            return {error: false}
+        }else{
+            return {error: true, message: "Failed to get a result for database creation. Server run will be terminated, check databases"}
+        }
+        
+
+    }catch(error){
+        console.log(error)
+        return {error:true, message: `Error occured during attempt to create database as: ${error}`}
+    } 
+}
+
+// return a new connection
+export const getDataBasePoolConnection = async ():Promise<PoolConnection | undefined> => {
+    const connection = await globalDbConnectionPool?.getConnection();
+    connection?.query(`USE ${DATABASE_NAME_CONST}`)
+    return connection
 }

@@ -5,7 +5,7 @@
  */
 
 // DATABASE
-export const DATABASE_NAME = "testdb"
+export const DATABASE_NAME_CONST = "crypto_database"
 
 // TABLES
-export const COIN_TABLE = "testdb"
+export const COIN_TABLE_CONST = "testdb"

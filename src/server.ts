@@ -171,7 +171,7 @@ const serverStart = async() => {
         console.log(chalk.yellow("=============================="))
     })
 
-    await getLatestData();
+    // await getLatestData();
 }
 
 // call for server startup
