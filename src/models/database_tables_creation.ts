@@ -8,13 +8,13 @@ import chalk from "chalk"
 // define table creation queries
 const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCIES_TABLE_NAME} (
         id INT NOT NULL AUTO_INCREMENT,
-        bitcoin_id INT NOT NULL UNIQUE,
+        currency_id INT NOT NULL UNIQUE,
         currency_name VARCHAR(100) NOT NULL UNIQUE,
         currency_symbol VARCHAR(50) NOT NULL UNIQUE,
         rank INT NOT NULL,
-        total_coins BIGINT NOT NULL,
+        is_active INT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id)
     )`
 
@@ -25,6 +25,8 @@ const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCI
         market_cap DECIMAL NOT NULL,
         total_coins INTEGER NOT NULL,
         market_cap_dominance DECIMAL NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         CONSTRAINT fk_${CURRENCIES_TABLE_NAME}
             FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (id)
@@ -38,6 +40,8 @@ const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCI
         percentage_one_hour DECIMAL NOT NULL,
         percentage_twenty_four_hour DECIMAL NOT NULL,
         percentage_seven_day DECIMAL NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         CONSTRAINT fk_percentage_${CURRENCIES_TABLE_NAME}
             FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (id)
@@ -52,6 +56,8 @@ const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCI
         percentage_sixty_day DECIMAL NOT NULL,
         percentage_ninety_day DECIMAL NOT NULL,
         PRIMARY KEY (id),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         CONSTRAINT fk_percentage_history_${CURRENCIES_TABLE_NAME}
             FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (id)
             ON DELETE CASCADE
@@ -101,12 +107,10 @@ export const createAllTablesController = async ():Promise<{error: boolean, messa
         }
         
         return {error: false}
-        
-
-        
-        
     }catch(error){
         return {error: true, message: `An Error occured during tables creation as: ${error}`}
+    }finally{
+        await dbConnection.release();
     }
 
 }

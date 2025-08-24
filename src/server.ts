@@ -13,6 +13,7 @@ import {createDatabasePool, setDatabaseValues, checkDatabaseConnection} from "./
 import {serverVariablesCheck, validateSetDatabaseConnectValues, validateCoinAPIKey} from "./middleware/env_check"
 import {createAllTablesController} from "../src/models/database_tables_creation"
 import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
+import {cryptoInitialCheckController} from "./controllers/crypto_controller"
 import {getLatestData} from "../src/services/crypto_service"
 
 dotenv.config()
@@ -178,9 +179,16 @@ const serverStart = async() => {
         process.exit() 
     }
     console.log(chalk.blue("Tables Creation completed"))
+
+    // Perform initial data checks
+    const initialCryptoControllerResponse = await cryptoInitialCheckController();
+    if(initialCryptoControllerResponse.message === "succcess"){
+        console.log(chalk.green("Initial Crypto Data has been retrieved and checked"))
+    }else {
+        console.log(chalk.red(initialCryptoControllerResponse.message))
+        console.log(chalk.blue("The above is not a breaking error, but needs to be checked - server will run"))
+    }
     
-
-
     // Start the Server and display running info
     app.listen(serverSetUpData.server_port, serverSetUpData.server_url, () => {
         console.log(chalk.yellow("======================"))
