@@ -21,3 +21,23 @@ export type databaseSetUpType = {
     dbPort: number;
     dbConnectionLimit: number;
 }
+
+export type databaseForeignKeyField = {
+    keyName: string;
+    linkedTableName: string;
+}
+
+export type tableColumnDefinition = {
+    columnName: string;
+    dataType: string;
+    allowNull: boolean;
+    defaultValue?: string;
+    comment?: string;
+}
+
+export type databaseDefinitionType = {
+    tableName: string;
+    foreignKeyData: databaseForeignKeyField | undefined;
+    columnDefinitions : tableColumnDefinition[];
+
+}

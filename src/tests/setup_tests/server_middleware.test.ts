@@ -3,7 +3,7 @@
  * This is a testing module containing functions to test the server middleware functions
  */
 
-import {serverVariablesCheck} from "../../src/middleware/env_check"
+import {serverVariablesCheck} from "../../middleware/env_check"
 import {describe, test, expect} from "@jest/globals"
 
 describe('testing server setup middleware', ()=>{

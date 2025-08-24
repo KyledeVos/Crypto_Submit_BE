@@ -3,7 +3,7 @@
  * This is a testing module containing functions to test the database middleware functions
  */
 
-import {validateSetDatabaseConnectValues} from "../../src/middleware/env_check"
+import {validateSetDatabaseConnectValues} from "../../middleware/env_check"
 import {describe, test, expect} from "@jest/globals"
 
 describe('testing database connection middleware', ()=>{
