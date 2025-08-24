@@ -4,8 +4,9 @@
  * a database pool. It is crucial that the server.ts already validated .env data before population here.
  */
 import mariaDB, {Pool, PoolConnection} from "mariadb"
+import {createAllTablesController} from "../src/models/database_tables_creation"
 import {databaseSetUpType} from "./types/server_database_types"
-import {DATABASE_NAME_CONST} from "../src/constants"
+import {DATABASE_NAME_CONST} from "./constants/constants_database"
 
 // define database connection values
 let dbHostNameValidated: string | undefined = undefined
@@ -96,24 +97,30 @@ export const checkDatabaseConnection = async(dbPool: Pool):Promise<{error: boole
 
 }
 
-export const createDatabaseVerify = async(dbConnectionPool: Pool):Promise<{error: boolean, message?:string}> => {
+export const createDatabaseVerify = async(dbConnectionPool: Pool, testDBName?: string):Promise<{error: boolean, message?:string}> => {
     if (!dbConnectionPool || dbConnectionPool === undefined){
         return {error: true, message: "createDataBase was not given a connection pool"}
     }
 
-    if(!DATABASE_NAME_CONST || DATABASE_NAME_CONST === undefined || typeof DATABASE_NAME_CONST !== "string" || DATABASE_NAME_CONST.trim() === ""){
+    if(!testDBName && (!DATABASE_NAME_CONST || DATABASE_NAME_CONST === undefined || typeof DATABASE_NAME_CONST !== "string" || DATABASE_NAME_CONST.trim() === "")){
         return {error: true, message: "Database name in constants is missing"}
     }
 
-        let connection: PoolConnection | undefined = undefined
+    let connection: PoolConnection | undefined = undefined
 
     try{
-        const queryStatement = `CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME_CONST}`
+        let queryStatement: string = ""
+        if(testDBName !== undefined && typeof testDBName === "string" && testDBName.trim() !== ""){
+            queryStatement = `CREATE DATABASE IF NOT EXISTS ${testDBName}`
+        }else{
+            queryStatement = `CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME_CONST}`
+        }
+        
         connection = await dbConnectionPool.getConnection();
         await connection.query(queryStatement)
 
         // confirm database does exist
-        const existsStatement = `SHOW DATABASES LIKE '${DATABASE_NAME_CONST}'`
+        const existsStatement = `SHOW DATABASES LIKE '${testDBName? testDBName : DATABASE_NAME_CONST}'`
         const existsCheckResult = await connection.query(existsStatement)
         if(existsCheckResult && Array.isArray(existsCheckResult) && existsCheckResult.length > 0){
             return {error: false}

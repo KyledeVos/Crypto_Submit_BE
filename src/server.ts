@@ -11,6 +11,7 @@ import {Pool} from 'mariadb'
 import { corsMiddleWare} from './middleware/cors_middleware'
 import {createDatabasePool, setDatabaseValues, checkDatabaseConnection} from "./database_config"
 import {serverVariablesCheck, validateSetDatabaseConnectValues, validateCoinAPIKey} from "./middleware/env_check"
+import {createAllTablesController} from "../src/models/database_tables_creation"
 import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
 import {getLatestData} from "../src/services/crypto_service"
 
@@ -127,7 +128,7 @@ let poolConnection: Pool | undefined = undefined
  * Attempts to retrieve a connectionPool from mariaDB
  * @returns connectionPool used to create connections or logs an error and then terminates the server run
  */
-const poolConnectionHandler = async () => {
+export const poolConnectionHandler = async () => {
     console.log(chalk.blue("Called for Database Connection Pool Creation"))
     try{
         const connectionPoolResult = await createDatabasePool()
@@ -159,6 +160,26 @@ const serverStart = async() => {
     poolConnection = await poolConnectionHandler();
 
     console.log(chalk.green("Database Connnection Pool Created\n"))
+    
+    // Perform tables creation
+    console.log(chalk.blue("Performing Tables Creation if none exist"))
+    const creationResult = await createAllTablesController()
+    if(creationResult === undefined){
+        console.log(chalk.red('Error occurred trying to create database tables. No Result recieved'))
+        console.log(chalk.red("Process Terminated"))
+        process.exit() 
+    }else if(creationResult.error && creationResult.message){
+        if(typeof creationResult.message === 'string' && creationResult.message.trim() !== ""){
+            console.log(chalk.red(creationResult.message))
+        }else{
+            console.log(chalk.red("Error occured during tables creation but no message was received"))
+        }
+        console.log(chalk.red("Process Terminated"))
+        process.exit() 
+    }
+    console.log(chalk.blue("Tables Creation completed"))
+    
+
 
     // Start the Server and display running info
     app.listen(serverSetUpData.server_port, serverSetUpData.server_url, () => {
