@@ -183,13 +183,14 @@ const serverStart = async() => {
 
     // Start the Server and display running info
     app.listen(serverSetUpData.server_port, serverSetUpData.server_url, () => {
-        console.log(chalk.green("======================"))
+        console.log(chalk.yellow("======================"))
         console.log(chalk.green("Server Starting. Details:"))
         console.log(chalk.green("URL:", serverSetUpData.server_url))
         console.log(chalk.green("PORT:", serverSetUpData.server_port))
         console.log(chalk.green("MODE:", serverSetUpData.server_mode))
         console.log(chalk.green("======================"))
         console.log(chalk.yellow("=============================="))
+        console.log(chalk.green("\n ---- SERVER IS LISTENING --- \n"))
     })
 
     // await getLatestData();

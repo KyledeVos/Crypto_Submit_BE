@@ -13,6 +13,7 @@ export const DATABASE_NAME_CONST = "crypto_database"
 export const CURRENCIES_TABLE_NAME = "currencies"
 export const CURRENT_DATA_TABLE_NAME = "current_data"
 export const PERCENTAGE_CHANGE_RECENT_TABLE_NAME = "percentage_change_recent"
+export const PERCENTAGE_CHANGE_HISTORY_TABLE_NAME = "percentage_change_history"
 
 
 
