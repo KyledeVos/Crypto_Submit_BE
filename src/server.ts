@@ -187,9 +187,6 @@ const serverStart = async() => {
     const initialCryptoControllerResponse = await cryptoInitialCheckController();
     if(initialCryptoControllerResponse.message === "succcess"){
         console.log(chalk.green("Initial Crypto Data has been retrieved and checked"))
-    }else {
-        console.log(chalk.red(initialCryptoControllerResponse.message))
-        console.log(chalk.blue("The above is not a breaking error, but needs to be checked - server will run"))
     }
 
     // setup routes

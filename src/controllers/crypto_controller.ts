@@ -4,6 +4,7 @@
  */
 import {retrieveCryptoMapData,populateInitialCryptoData, checkExistingCryptoDataCount, updateCryptoData} from "../models/crypto_model"
 import {cryptoMapDataFilter} from "../utilities/crypto_filter"
+import {fundamentalSummaryFields} from "../constants/crypto_constants"
 import {cryptoUpToDateMapData} from "../types/crypto_types"
 import { count } from "console"
 import chalk from "chalk"
@@ -24,12 +25,10 @@ export const cryptoInitialCheckController = async():Promise<{message: string}> =
         return {message: "retrieveCryptoMapData did not return an error, but has returned undefined data"}
     }
 
-    // define the fields to be retrieved from the raw crypto data
-    const fundamentalFields:string[] = ['id', 'name', 'symbol', 'rank', 'is_active']
 
     //format and filter the data
     const responseData = initialCheckResult.data
-    const formattedData = cryptoMapDataFilter(responseData, fundamentalFields)
+    const formattedData = cryptoMapDataFilter(responseData, fundamentalSummaryFields)
     if(typeof formattedData === "string"){
         return {message: formattedData}
     }
@@ -38,7 +37,6 @@ export const cryptoInitialCheckController = async():Promise<{message: string}> =
 
     // Check if there is existing data
     const countResult = await checkExistingCryptoDataCount()
-    console.log("count result", countResult)
     if(typeof countResult === "string"){
         console.log(chalk.red(countResult))
     }else{

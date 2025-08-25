@@ -11,3 +11,4 @@ export const CRYPTO_CURRENCIES_START: string[] = [
     'XRP',
     'BNB'
 ]
+export const fundamentalSummaryFields: string[] = ['id', 'name', 'symbol', 'rank', 'is_active']
