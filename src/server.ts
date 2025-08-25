@@ -16,6 +16,9 @@ import {serverSetUp, development_env, databaseSetUpType} from "./types/server_da
 import {cryptoInitialCheckController} from "./controllers/crypto_controller"
 import {getLatestData} from "../src/services/crypto_service"
 
+// routes import
+import crypto_routes from './routes/crypto_routes'
+
 dotenv.config()
 
 
@@ -188,6 +191,9 @@ const serverStart = async() => {
         console.log(chalk.red(initialCryptoControllerResponse.message))
         console.log(chalk.blue("The above is not a breaking error, but needs to be checked - server will run"))
     }
+
+    // setup routes
+    app.use(crypto_routes)
     
     // Start the Server and display running info
     app.listen(serverSetUpData.server_port, serverSetUpData.server_url, () => {
