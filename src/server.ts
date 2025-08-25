@@ -207,10 +207,12 @@ const serverStart = async() => {
 // call for server startup
 serverStart();
 
-// simple route for basic testing
-app.get('/hello', (req, res) => {
-    console.log("HIT ROUTE")
-    res.json({message:"connected to server"})
-})
+// simple route for basic response testing, but project must be in dev mode to run it
+if(process.env.MODE === 'development'){
+    app.get('/hello', (req, res) => {
+        console.log("HIT HELLO ROUTE")
+        res.json({message:"connected to server"})
+    })
+}
 
 
