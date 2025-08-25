@@ -72,3 +72,7 @@ The user should be root, enter the password that you set and that the TCP port i
 during the MariaDB install. The HostName / IP should be 127.0.0.1 for your localhost as this project is set <br> to run locally.
 
 i. If the above is done correctly, click "Open" and you should see the HeidiSQL client open to the MariaDB database. If this is not happening, do not proceed to anything else. You need to research / watch tutorials to get MariaDB running correctly and to a point where you can see it in a client - if you bypass this step the project will not run correctly.
+
+### Redis
+
+You will need to have a redis server installed on your system and in an Ubuntu terminal run: "sudo systemctl start redis-server" to start the redis server
