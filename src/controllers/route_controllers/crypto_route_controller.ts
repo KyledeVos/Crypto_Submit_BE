@@ -45,12 +45,9 @@ export const summaryDataController = async (req: Request, res: Response) => {
             }else{
                 //# current data
                 const currentDate = Date.now()
-                console.log("current time", currentDate)
                 const redisDataJson = JSON.parse(value)
-                console.log("redisDataJson time", redisDataJson.dateStamp)
                 const timeDiffMilli = currentDate - redisDataJson.dateStamp;
-                console.log("TIMEDIFF", timeDiffMilli
-                )
+
                 // time diff greater than one minute, get new data and set in redis
                 if (timeDiffMilli > 60000){
                     const data = await callForSummaryData()

@@ -32,7 +32,6 @@ export const cryptoInitialCheckController = async():Promise<{message: string}> =
     if(typeof formattedData === "string"){
         return {message: formattedData}
     }
-    console.log('FILTERED', formattedData)
     
 
     // Check if there is existing data

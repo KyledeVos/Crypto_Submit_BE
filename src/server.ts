@@ -190,6 +190,7 @@ const serverStart = async() => {
     }
 
     // setup routes
+    app.use(express.json());
     app.use(crypto_routes)
     
     // Start the Server and display running info
