@@ -1,6 +1,5 @@
 import {getDataBasePoolConnection} from "../controllers/db_controller"
 import {CURRENCIES_TABLE_NAME, CURRENT_DATA_TABLE_NAME, PERCENTAGE_CHANGE_RECENT_TABLE_NAME, PERCENTAGE_CHANGE_HISTORY_TABLE_NAME} from "../constants/constants_database"
-import {databaseDefinitionType} from "../types/server_database_types"
 import {PoolConnection} from "mariadb"
 import {CRYPTO_CURRENCIES_START} from "../constants/crypto_constants"
 import {cryptoMapDataType, cryptoGeneralResponseType} from "../types/crypto_types"

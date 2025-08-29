@@ -34,10 +34,3 @@ export type tableColumnDefinition = {
     defaultValue?: string;
     comment?: string;
 }
-
-export type databaseDefinitionType = {
-    tableName: string;
-    foreignKeyData: databaseForeignKeyField | undefined;
-    columnDefinitions : tableColumnDefinition[];
-
-}
