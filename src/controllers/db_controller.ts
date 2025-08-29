@@ -69,14 +69,22 @@ export const DBController = async (dbConnectionInfo: databaseSetUpType):Promise<
  */
 export const createDBPool = async(dbConnectionInfo: databaseSetUpType):Promise<Pool | undefined> => {
     try{
-    const dbConnection:Pool = mariaDB.createPool({
+    const dbPool:Pool = mariaDB.createPool({
         host: dbConnectionInfo.dbHostName,
         user: dbConnectionInfo.dbUser,
         password: dbConnectionInfo.dbPassword,
         port: dbConnectionInfo.dbPort,
-        connectionLimit: dbConnectionInfo.dbConnectionLimit
+        connectionLimit: dbConnectionInfo.dbConnectionLimit,
     })
-    return dbConnection
+    // confirm a connection is possible
+    const testConnection = await dbPool.getConnection()
+    if(!testConnection || testConnection === undefined){
+        trackLogger({action: "error_file", logType: "error", callFunction: "createDBPool", 
+            message: "Failed connection test for created pool"})
+        return undefined
+    }
+    await testConnection?.release()
+    return dbPool
     }catch(error){
         trackLogger({action: "error_file", logType: "error", callFunction: "createDBPool", 
             message: `Error occured as: ${error}`})
@@ -146,7 +154,12 @@ export const checkDatabaseConnection = async(dbPool: Pool, testDBName?: string):
     } 
 }
 
-
+/**
+ * Creates and returns a new DB Connection
+ * @returns pool of type PoolConnection or undefined if error occurs
+ * @remarks if connection is received - setup your logic and processes to release the connection after completion
+ * @remarks this function performs its own internal logging
+ */
 export const getDataBasePoolConnection = async():Promise<PoolConnection | undefined> => {
     try{
         if(globalDbConnectionPool === undefined){
@@ -160,6 +173,10 @@ export const getDataBasePoolConnection = async():Promise<PoolConnection | undefi
                 message: "Failed to create a db connection"})
             return undefined
             }
+        // connect to the database
+        // select the database
+        await dbConnection.query(`USE ${DATABASE_NAME_CONST}`)
+
         return dbConnection
     }catch(error){
         trackLogger({action: "error_file", logType: "error", callFunction: "getDataBasePoolConnection", 

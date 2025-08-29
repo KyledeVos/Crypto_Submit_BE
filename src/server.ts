@@ -11,7 +11,7 @@ import {Pool} from 'mariadb'
 import { corsMiddleWare} from './middleware/cors_middleware'
 import {DBController} from "./controllers/db_controller"
 import {serverVariablesCheck, validateSetDatabaseConnectValues, validateCoinAPIKey} from "./middleware/env_check"
-import {createAllTablesController} from "../src/models/database_tables_creation"
+import {createAllTablesModel} from "../src/models/database_tables_creation"
 import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
 import {cryptoInitialCheckController} from "./controllers/crypto_controller"
 import {getLatestData} from "../src/services/crypto_service"
@@ -88,28 +88,17 @@ export const poolConnectionHandler = async () => {
 /**
  * An async handler to await the promise from 'poolConnectionHandler' and then start up the server
  */
-const serverStart = async() => {
+const databaseInitialStarter = async() => {
     // Call for creation of connection pool - also performs a first connection query to validate connection on startup
     poolConnection = await poolConnectionHandler();
     styledLog("Database Connnection Pool Created\n", "success")
     
-    // // Perform tables creation
-    // console.log(chalk.blue("Performing Tables Creation if none exist"))
-    // const creationResult = await createAllTablesController()
-    // if(creationResult === undefined){
-    //     console.log(chalk.red('Error occurred trying to create database tables. No Result recieved'))
-    //     console.log(chalk.red("Process Terminated"))
-    //     process.exit() 
-    // }else if(creationResult.error && creationResult.message){
-    //     if(typeof creationResult.message === 'string' && creationResult.message.trim() !== ""){
-    //         console.log(chalk.red(creationResult.message))
-    //     }else{
-    //         console.log(chalk.red("Error occured during tables creation but no message was received"))
-    //     }
-    //     console.log(chalk.red("Process Terminated"))
-    //     process.exit() 
-    // }
-    // console.log(chalk.blue("Tables Creation completed"))
+    // Perform tables creation
+    const creationResult = await createAllTablesModel()
+    if(creationResult === undefined || creationResult === false){
+        console.log(terminationString)
+        process.exit();} 
+    }
 
     // // Perform initial data checks
     // const initialCryptoControllerResponse = await cryptoInitialCheckController();
@@ -118,7 +107,15 @@ const serverStart = async() => {
     // }
 
 
-     // Create Server
+
+
+
+
+    // await getLatestData();
+
+const serverStartUp = async () => {
+        await databaseInitialStarter();
+             // Create Server
     const app = express();
     // setup cors middleware
     app.use(corsMiddleWare)
@@ -147,13 +144,10 @@ const serverStart = async() => {
         console.log(chalk.green("\n ---- SERVER IS LISTENING --- \n"))
     })
 
-
-
-    // await getLatestData();
-}
+    }
 
 // call for server startup
-serverStart();
+serverStartUp();
 
 
 

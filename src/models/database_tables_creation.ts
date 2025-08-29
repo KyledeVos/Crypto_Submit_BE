@@ -1,8 +1,13 @@
+/**
+ * @module database_tables_creation.test.ts
+ * This is a database tables creation module intended to be called on server startup
+ * @remarks Table Creation queries are defined in this module
+ */
+
 import {getDataBasePoolConnection} from "../controllers/db_controller"
 import {CURRENCIES_TABLE_NAME, CURRENT_DATA_TABLE_NAME, PERCENTAGE_CHANGE_RECENT_TABLE_NAME, PERCENTAGE_CHANGE_HISTORY_TABLE_NAME} from "../constants/constants_database"
-import {databaseDefinitionType} from "../types/server_database_types"
 import {PoolConnection} from "mariadb"
-import chalk from "chalk"
+import {trackLogger, styledLog} from "../utilities/logger"
 
 
 // define table creation queries
@@ -64,69 +69,94 @@ const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCI
             ON UPDATE CASCADE
     )`
 
-// CONTROLLER
-export const createAllTablesController = async ():Promise<{error: boolean, message?: string}> => {
-    // attempt to get DB Connection
+/**
+/ * The only function allowed to perform table creations on server startup
+/* @returns boolean for success
+/* @remarks failure cases on this function are intended to stop the server running
+ */
+export const createAllTablesModel = async ():Promise<boolean> => {
+    styledLog("Performing Tables Creation if none exist", "info")
+
+    // attempt to retrieve DB Connection
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection()
     if(!dbConnection || dbConnection === undefined){
-        return {error: true, message: 'createAllTablesController has a missing dbConnection'}
+        trackLogger({action: "error_file", logType: "error", callFunction: "createAllTablesModel", 
+            message: "createAllTablesController has a missing dbConnection"})
+        return false
     }
-    // log tracking
-    try{
 
+    try{
         // create currency table
         const currenyCreateResult = await tableCreationHelper(dbConnection, CURRENCIES_TABLE_NAME, currencyTableCreationQuery)
-        if(currenyCreateResult.error !== undefined && currenyCreateResult.error === true){
-            return {error: true, message: currenyCreateResult.message ? currenyCreateResult.message : "Error occured in creation of currency table"}
+        if(currenyCreateResult === false){
+            return false
         }else{
-            console.log(chalk.green(' - Currency Table created / present in Database'))
+            styledLog(' - Currency Table created / present in Database', "success")
         }
 
         // create current data table
         const currentDataCreateResult = await tableCreationHelper(dbConnection, CURRENT_DATA_TABLE_NAME, currentDataTableCreationQuery)
-        if(currentDataCreateResult.error !== undefined && currentDataCreateResult.error === true){
-            return {error: true, message: currentDataCreateResult.message ? currentDataCreateResult.message : "Error occured in creation of current data table"}
+        if(currentDataCreateResult === false){
+            return false
         }else{
-            console.log(chalk.green(' - Currenct Data Table created / present in Database'))
+            styledLog(' - Current Data Table created / present in Database', "success")
         }
 
         // create percentage recent table
         const percentageRecentCreateResult = await tableCreationHelper(dbConnection, PERCENTAGE_CHANGE_RECENT_TABLE_NAME, percentageChangeTableCreationQuery)
-        if(percentageRecentCreateResult.error !== undefined && percentageRecentCreateResult.error === true){
-            return {error: true, message: percentageRecentCreateResult.message ? percentageRecentCreateResult.message : "Error occured in creation of percentage recent table"}
+        if(percentageRecentCreateResult === false){
+            return false
         }else{
-            console.log(chalk.green(' - Percentage Recent Table created / present in Database'))
+            styledLog(' - Percentage Recent Table created / present in Database', "success")
         }
 
         // create percentage history table
         const percentageHistoryCreateResult = await tableCreationHelper(dbConnection, PERCENTAGE_CHANGE_HISTORY_TABLE_NAME, percentageChangeHistoryTableCreationQuery)
-        if(percentageHistoryCreateResult.error !== undefined && percentageHistoryCreateResult.error === true){
-            return {error: true, message: percentageHistoryCreateResult.message ? percentageHistoryCreateResult.message : "Error occured in creation of percentage history table"}
+        if(percentageHistoryCreateResult === false){
+            return false
         }else{
-            console.log(chalk.green(' - Percentage History Table created / present in Database'))
+            styledLog(' - Percentage History Table created / present in Database', "success")
         }
         
-        return {error: false}
+        // success
+        styledLog("Tables Creation Completed", "success")
+        return true
     }catch(error){
-        return {error: true, message: `An Error occured during tables creation as: ${error}`}
+        trackLogger({action: "error_file", logType: "error", callFunction: "createAllTablesModel", 
+                message: `An Error occured during tables creation as: ${error}`})
+         return false
     }finally{
-        await dbConnection.release();
+        if(dbConnection !== undefined){
+            await dbConnection.release();
+        }
     }
-
 }
 
-// HELPER - Execute table creation and log presence in Database
-const tableCreationHelper = async (dbConnection: PoolConnection, tableName: string, tableCreationQuery: string) => {
+/** Helper Function to check for table presence and execute creation query
+ * @param dbConnection connection to DB
+ * @param tableName for creation and error logging
+ * @param tableCreationQuery creation query to execute
+ * @returns boolean for success
+ * @remarks this function is intended to use a reusable db connection and relies on the caller to release it
+ */
+const tableCreationHelper = async (dbConnection: PoolConnection, tableName: string, tableCreationQuery: string):Promise<boolean> => {
 
-        const tableCreationResult = await dbConnection.query(tableCreationQuery)
+    try{    
+        await dbConnection.query(tableCreationQuery)
         // confirm table presence
         const tableCreatedPresenceResult = await dbConnection.query(`SHOW TABLES LIKE '${tableName}'`)
         if(tableCreatedPresenceResult && Array.isArray(tableCreatedPresenceResult) && tableCreatedPresenceResult.length > 0){
-            return {error: false}
+            return true
         }else{
-            return {error: true, message: `Failed to get a result for table present in DB as : ${tableName}. Server run will be terminated, check databases`}
+            trackLogger({action: "error_file", logType: "error", callFunction: "tableCreationHelper", 
+                message: `Failed to get a result for table present in DB as : ${tableName}. Check Database Tables`})
+            return false
         }
-
+    }catch(error){
+        trackLogger({action: "error_file", logType: "error", callFunction: "tableCreationHelper", 
+            message: `Error occured during table creation as: ${error}`})
+        return false
+    }
 }
 
 
