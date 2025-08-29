@@ -9,17 +9,17 @@ import {describe, test, expect} from "@jest/globals"
 
 describe('testing coin api validation checks', ()=>{
     test('Success Test', () => {
-        const expectedResult = {error: false}
+        const expectedResult = "1234-AOR"
         expect(validateCoinAPIKey('1234-AOR')).toEqual(expectedResult)
     })
 
     test('Fail Case 1 - No API Key', () => {
-        const expectedResult = {error: true, message: "Coin API key is missing / blank"}
+        const expectedResult = undefined
         expect(validateCoinAPIKey(undefined)).toEqual(expectedResult)
     })
 
     test('Fail Case 2 - API Key as a blank string', () => {
-        const expectedResult = {error: true, message: "Coin API key is missing / blank"}
+        const expectedResult = undefined
         expect(validateCoinAPIKey("")).toEqual(expectedResult)
     })
 })

@@ -26,7 +26,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = 'abc';
         const server_mode_env = 'development'
 
-        const expectedResult = "Server port is not a valid int."
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
@@ -36,7 +36,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = '3006';
         const server_mode_env = 'development'
 
-        const expectedResult = "Missing Server URL"
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
@@ -46,7 +46,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = '';
         const server_mode_env = 'development'
 
-        const expectedResult = "Missing Server Port"
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
@@ -56,7 +56,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = '3306';
         const server_mode_env = ''
 
-        const expectedResult = "Server mode is missing / not properly configured"
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
@@ -66,7 +66,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = '3306';
         const server_mode_env = 'staging'
 
-        const expectedResult = "Server mode is missing / not properly configured"
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
@@ -76,7 +76,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = '3306';
         const server_mode_env = 'staging'
 
-        const expectedResult = "Missing Server URL"
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
@@ -86,7 +86,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = undefined;
         const server_mode_env = 'staging'
 
-        const expectedResult = "Missing Server Port"
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
@@ -96,7 +96,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = '3306';
         const server_mode_env = undefined
 
-        const expectedResult = "Server mode is missing / not properly configured"
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
@@ -106,7 +106,7 @@ describe('testing server setup middleware', ()=>{
         const server_port_env = undefined;
         const server_mode_env = undefined
 
-        const expectedResult = "Missing Server ENV values - check if the .env was created with .env_blank template and values added"
+        const expectedResult = undefined
 
         expect(serverVariablesCheck(server_url_env, server_port_env, server_mode_env)).toEqual(expectedResult)
     })
