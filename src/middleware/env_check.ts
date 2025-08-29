@@ -9,9 +9,9 @@ import {trackLogger, styledLog} from "../utilities/logger"
 
 /**
  * Validates the .env fields used to start the server
- * @param server_url_env - could be string or null
- * @param server_port_env - could be string or null
- * @param server_mode_env - could be string or null
+ * @param server_url_env - could be string or undefined
+ * @param server_port_env - could be string or undefined
+ * @param server_mode_env - could be string or undefined
  * @returns String if there is an error, Object containing server_url (string), server_port (number), server_mode of type 'development_env'
  * @throws an error if types are mismatched or conversion of port from string to number fails. Returns a string
  * @remarks this function will perform its own logging calls for internal errors
@@ -84,12 +84,13 @@ export const serverVariablesCheck = (
 
 /**
  * Validates the .env fields used to create a database connection
- * @param dbHostName - could be string or null
- * @param dbUser - could be string or null
- * @param dbPassword - could be string or null
- * @param dbPort - could be string or null
- * @param dbConnectionLimit - could be string or null
- * @returns boolean error, message describing the error. If success, object called 'databaseData' with host, user, password, port and connection limit
+ * @param dbHostName - could be string or undefined
+ * @param dbUser - could be string or undefined
+ * @param dbPassword - could be string or undefined
+ * @param dbPort - could be string or undefined
+ * @param dbConnectionLimit - could be string or undefined
+ * @returns data of type 'databaseSetUpType' if valid, undefined if not
+ * @remarks this function will perform its own logging calls for internal errors
  */
 export const validateSetDatabaseConnectValues = (
     dbHostName: string | undefined,
@@ -188,16 +189,19 @@ export const validateSetDatabaseConnectValues = (
 
 /**
  * Validates the .env field for the Coin API Key
- * @param coinKey - could be string or null
- * @returns boolean error, message describing the error
+ * @param coinKey - could be string or undefined
+ * @returns string if valid, undefined if not
+ * @remarks this function will perform its own logging calls for internal errors
  */
 export const validateCoinAPIKey = (
     coinKey: string | undefined,
-): {error: boolean, message?: string} => {
-
+): string | undefined => {
+    styledLog("Called for Coin API Present Validation", "info")
     if(coinKey === undefined || typeof coinKey !== 'string' || coinKey.trim() === ""){
-        return {error: true, message: "Coin API key is missing / blank"}
-    }else{
-        return{error: false}
+        trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+        message: "Coin API key is missing / blank"})
+        return undefined
     }
+    styledLog(`Coin API Key valid. Checked at: ${new Date()}`,'success')
+    return coinKey
 }

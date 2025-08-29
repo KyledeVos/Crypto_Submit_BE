@@ -34,6 +34,7 @@ const terminationString = "==== PROCESS TERMINATED ===="
 console.log(styledLog("==============================", "warning"))
 console.log(styledLog("SERVER STARTUP HAS BEEN CALLED\n", "warning"))
 
+// --------------------------------
 // VARIABLES FROM .ENV
 // server variables
 const server_url_env: string | undefined = process.env.SERVER_URL || undefined
@@ -58,36 +59,19 @@ if(!serverSetUpData || serverSetUpData === undefined){
     process.exit();  
 }
 
-// ----------------------
 // Validate and Configure Database Setup Values
 const databaseValidation =  validateSetDatabaseConnectValues(databaseHost, databaseUser, databasePassword, databasePort, databaseConnectionLimit);
 if(!databaseValidation || databaseValidation === undefined){
     console.log(terminationString)
     process.exit(); 
 }
-// ----------------------
 
 // Validate presence of Coin API Key
-console.log(chalk.blue("Called for Coin API Present Validation"))
 const validatedCoinAPIKey = validateCoinAPIKey(coinAPIKeyEnv);
-if(validateCoinAPIKey === undefined){
-    console.log(chalk.red("validateCoinAPIKey returned undefined"))
-    console.log(chalk.red("Process Terminated"))
-    process.exit()
-}else if(typeof validatedCoinAPIKey !== "object" || validatedCoinAPIKey.error === undefined){
-    console.log(chalk.red("validateCoinAPIKey return of unknown type"))
-    console.log(chalk.red("Process Terminated"))
-    process.exit()
-}else if(validatedCoinAPIKey.error === true){
-    if(validatedCoinAPIKey.message && typeof validatedCoinAPIKey.message === "string" && validatedCoinAPIKey.message.trim() !== ""){
-        console.log(chalk.red(validatedCoinAPIKey.message))
-    }else{
-        console.log(chalk.red("validateCoinAPIKey has an error, but did not return a message"))
-    }
-    console.log(chalk.red("Process Terminated"))
-    process.exit() 
+if(validatedCoinAPIKey === undefined){
+    console.log(terminationString)
+    process.exit(); 
 }
-console.log(chalk.green("Coin API Present Validation Completed\n"))
 // ------------------------
 
 // Create Database Pool
