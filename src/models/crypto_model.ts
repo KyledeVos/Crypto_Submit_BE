@@ -33,12 +33,6 @@ export const checkExistingCryptoDataCount = async():Promise<number | string> => 
  */
 export const retrieveCryptoMapData = async ():Promise<{message: string, data: cryptoGeneralResponseType | undefined} > =>{
 
-    const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
-
-    if(!dbConnection || dbConnection === undefined){
-        return {message: "checkCryptoInitial has missing dbConnection. Cannot perform check", data: undefined}
-    }
-
     try{
         const cryptoMapResponse: cryptoGeneralResponseType | undefined = await getCryptoCurrencyMapData() as cryptoGeneralResponseType | undefined;
         if(cryptoMapResponse === undefined){
@@ -52,8 +46,6 @@ export const retrieveCryptoMapData = async ():Promise<{message: string, data: cr
         } 
     }catch(error){
        return {message: `Error occured in checkCryptoInitial for query as: ${error}`, data: undefined} 
-    }finally{
-        await dbConnection.release()
     }
 }
 
@@ -81,7 +73,6 @@ export const populateInitialCryptoData = async(cryptoData: cryptoMapDataType[]):
               Number(outerIndex) !== cryptoData.length -1 ? insertQuery += "), " : insertQuery += ")"
         })
     })
-    console.log("BUILT QUERY", insertQuery)
     try{
         const insertResult = dbConnection.query(insertQuery)
         return {message: "success"}

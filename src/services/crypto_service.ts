@@ -1,10 +1,13 @@
 /**
  * @module server.ts
  * This module is used to make 3rd Part API calls for cryto currency data
+ * @remarks the endpoints have been defined here for central control and quick reference
  */
 import dotenv from 'dotenv'
-import {cryptoMapDataType} from "../types/crypto_types"
+import {cryptoMapDataType, cryptoGeneralResponseType} from "../types/crypto_types"
+import { trackLogger } from '../utilities/logger';
 import { response } from 'express';
+import { error } from 'console';
 dotenv.config();
 
 // define endpoints
@@ -14,11 +17,15 @@ const crypto_map_symbol_base = "https://pro-api.coinmarketcap.com/v1/cryptocurre
 /**
  * Retrieves crypto map data (a summary of data for all crypto currencies)
  * @returns status and data for crypto map data, undefined if there is an error
+ * @remarks this function performs it's own internal logging for errors
+ * @remarks this function logs each call made to the map symbol endpoint
  */
-export const getCryptoCurrencyMapData = async() => {
+export const getCryptoCurrencyMapData = async():Promise<cryptoGeneralResponseType> => {
 
-    if (process.env.COIN_API_KEY){
+    if (process.env.COIN_API_KEY && process.env.COIN_API_KEY !== undefined && process.env.COIN_API_KEY.trim() !== ""){
         try{
+            trackLogger({action: "log_file", logType: "info", callFunction: "getCryptoCurrencyMapData", 
+                message: "Call Made to get latest crypto map data"})
             const result = await fetch(crypto_map_symbol_base, {
                 method: "GET",
                 headers: {
@@ -28,11 +35,15 @@ export const getCryptoCurrencyMapData = async() => {
             const responseData = await result.json()
             return {status: result.status, data: responseData}
         }catch(error){
-            return undefined
+            trackLogger({action: "error_file", logType: "error", callFunction: "getCryptoCurrencyMapData", 
+                message: `Error occured during data retrieval as: ${error}`})
+            return {status: 500, data: undefined}
         }
 
     }else{
-        return undefined
+        trackLogger({action: "error_file", logType: "error", callFunction: "getCryptoCurrencyMapData", 
+            message: ""})
+        return {status: 500, data: undefined}
     }
 }
 

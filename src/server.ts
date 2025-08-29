@@ -61,7 +61,7 @@ if(!databaseValidation || databaseValidation === undefined){
     process.exit(); 
 }
 
-// Validate presence of Coin API Key
+// Validate presence of Coin API Key - missing key will terminate process run
 const validatedCoinAPIKey = validateCoinAPIKey(coinAPIKeyEnv);
 if(validatedCoinAPIKey === undefined){
     console.log(terminationString)
@@ -69,7 +69,7 @@ if(validatedCoinAPIKey === undefined){
 }
 // ------------------------
 
-// Create Database Pool
+// Database Pool
 let poolConnection: Pool | undefined = undefined
 
 /**
@@ -86,9 +86,11 @@ export const poolConnectionHandler = async () => {
 }
 
 /**
- * An async handler to await the promise from 'poolConnectionHandler' and then start up the server
+ * An async handler to creat DB pool, create / check tables presence on startup and perform initial data retrievals
+ * @remarks failure to create DB pool, create a connection and  create / check tables are process termination conditions
+ * @remarks failure to retieve data is not a termination condition, but logs should be checked
  */
-const databaseInitialStarter = async() => {
+const databaseInitialStarter = async () => {
     // Call for creation of connection pool - also performs a first connection query to validate connection on startup
     poolConnection = await poolConnectionHandler();
     styledLog("Database Connnection Pool Created\n", "success")
@@ -97,20 +99,16 @@ const databaseInitialStarter = async() => {
     const creationResult = await createAllTablesModel()
     if(creationResult === undefined || creationResult === false){
         console.log(terminationString)
-        process.exit();} 
+        process.exit();
     }
 
-    // // Perform initial data checks
-    // const initialCryptoControllerResponse = await cryptoInitialCheckController();
-    // if(initialCryptoControllerResponse.message === "succcess"){
-    //     console.log(chalk.green("Initial Crypto Data has been retrieved and checked"))
-    // }
-
-
-
-
-
-
+    // Perform initial data checks - falure to get data is not a process termination condition
+    // but should be monitored and checked if successful on startup
+    const initialCryptoControllerResponse = await cryptoInitialCheckController();
+    if(initialCryptoControllerResponse === "succcess"){
+        styledLog("Initial Crypto Data has been retrieved and checked", "success")
+    }
+}
     // await getLatestData();
 
 const serverStartUp = async () => {
@@ -134,14 +132,13 @@ const serverStartUp = async () => {
     
     // Start the Server and display running info
     app.listen(serverSetUpData.server_port, serverSetUpData.server_url, () => {
-        console.log(chalk.yellow("======================"))
-        console.log(chalk.green("Server Starting. Details:"))
-        console.log(chalk.green("URL:", serverSetUpData.server_url))
-        console.log(chalk.green("PORT:", serverSetUpData.server_port))
-        console.log(chalk.green("MODE:", serverSetUpData.server_mode))
-        console.log(chalk.green("======================"))
-        console.log(chalk.yellow("=============================="))
-        console.log(chalk.green("\n ---- SERVER IS LISTENING --- \n"))
+        styledLog("======================", "warning")
+        styledLog("Server Starting. Details:")
+        styledLog(`URL: ${serverSetUpData.server_url}`)
+        styledLog(`PORT: ${serverSetUpData.server_port}`)
+        styledLog(`MODE: ${serverSetUpData.server_mode}`)
+        styledLog("======================", "warning")
+        styledLog("\n ---- SERVER IS LISTENING --- \n", "success")
     })
 
     }

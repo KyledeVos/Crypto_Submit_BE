@@ -17,7 +17,7 @@ export const simpleStringValidator = (stringValue: string):boolean => {
  * @returns boolean for valid or not
  */
 export const simpleIntegerValidator = (integerValue: number, onlyPositive: boolean = false ):boolean => {
-    if(!integerValue || integerValue === undefined || typeof integerValue !== "number"){
+    if(integerValue === undefined || typeof integerValue !== "number"){
         return false
     }else if(Number.isNaN(integerValue) || !Number.isInteger(integerValue)){
         return false

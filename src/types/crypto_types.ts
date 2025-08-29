@@ -9,6 +9,22 @@ export type cryptoGeneralResponseType = {
     data: any;
 }
 
+/**
+ * @remarks Describes and conforms application to the map data types for each object
+ */
+export type cryptoMapDataRawType = {
+    id: number,
+    rank: number,
+    name: string,
+    symbol: string,
+    slug: string,
+    is_active: number,
+    status: number,
+    first_historical_data: string,
+    last_historical_data: string,
+    platform: null 
+}
+
 
 export type cryptoMapDataType = {
     id: number,
@@ -29,7 +45,7 @@ export type cryptoUpToDateMapData = {
     status: number,
     first_historical_data: Date,
     last_historical_data: Date,
-    platform: null
+    platform: any
 }
 
 // THIS IS THE FUNDAMENTAL CRYPTO DATA USED BY THE APPLICATION
