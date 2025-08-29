@@ -1,3 +1,7 @@
+/**
+ * @module provides wrapper functions for console logs and to trigger db logs and file writing
+ */
+
 import {LogType, LoggerType} from "../types/util_types"
 import chalk from "chalk"
 import { simpleStringValidator } from "../validators/simpleValidators"
