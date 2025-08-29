@@ -10,7 +10,7 @@
     "test_server": "jest server_middleware.test.ts",
     "test_database_connection": "jest database_middleware.test.ts",
     "test_coin_api_validate": "jest coin_api_middleware.test.ts",
-    "test_database_config": "jest database_config.test.ts"
+    "test_database_controller": "jest database_controller.test.ts"
   },
   "keywords": [],
   "author": "",
