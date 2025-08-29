@@ -15,12 +15,11 @@ import {createAllTablesController} from "../src/models/database_tables_creation"
 import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
 import {cryptoInitialCheckController} from "./controllers/crypto_controller"
 import {getLatestData} from "../src/services/crypto_service"
+import {styledLog} from "./utilities/logger"
 
 // routes import
 import crypto_routes from './routes/crypto_routes'
-
 dotenv.config()
-
 
 /**
  * Create Server
@@ -29,8 +28,11 @@ const app = express();
 // setup cors middleware
 app.use(corsMiddleWare)
 
-console.log(chalk.yellow("=============================="))
-console.log(chalk.yellow("SERVER STARTUP HAS BEEN CALLED\n"))
+// standard termination string
+const terminationString = "==== PROCESS TERMINATED ===="
+
+console.log(styledLog("==============================", "warning"))
+console.log(styledLog("SERVER STARTUP HAS BEEN CALLED\n", "warning"))
 
 // VARIABLES FROM .ENV
 // server variables
@@ -50,56 +52,19 @@ const coinAPIKeyEnv: string | undefined = process.env.COIN_API_KEY || undefined
 
 // --------------------------------
 // Validate and assign server fields (URL, PORT and MODE) for server run
-console.log(chalk.blue("Called for Server Fields Validation"))
-const serverSetUpData: serverSetUp | string  = serverVariablesCheck(server_url_env, server_port_env, server_mode_env)
-if(typeof serverSetUpData === "string"){
-    if(serverSetUpData.trim() === ""){
-      console.log(chalk.red("Server Data Setup check returned blank - Process Terminated"))
-      process.exit();  
-    }else{
-        console.log(chalk.red(serverSetUpData))
-        console.log(chalk.red("Process Terminated"))
-        process.exit()
-    }
+const serverSetUpData: serverSetUp | undefined = serverVariablesCheck(server_url_env, server_port_env, server_mode_env)
+if(!serverSetUpData || serverSetUpData === undefined){
+    console.log(terminationString)
+    process.exit();  
 }
-console.log(chalk.green("Server Fields Validation Completed\n"))
+
 // ----------------------
-
 // Validate and Configure Database Setup Values
-console.log(chalk.blue("Called for Database Fields Validation"))
 const databaseValidation =  validateSetDatabaseConnectValues(databaseHost, databaseUser, databasePassword, databasePort, databaseConnectionLimit);
-if(databaseValidation === undefined){
-    console.log(chalk.red("validateSetDatabaseConnectValues returned unexpected undefined"))
-    console.log(chalk.red("Process Terminated"))
-    process.exit()
-}else if(typeof databaseValidation !== "object"){
-    console.log(chalk.red("validateSetDatabaseConnectValues has not returned an object as expected"))
-    console.log(chalk.red("Process Terminated"))
-    process.exit()
-}else if(databaseValidation.error === true){
-    if(databaseValidation.message !== undefined && 
-        typeof databaseValidation.message === "string" && 
-        databaseValidation.message.trim() !== ""){
-            console.log(chalk.red(databaseValidation.message))
-            console.log(chalk.red("Process Terminated"))
-            process.exit()
-
-    }else{
-        console.log(chalk.red("validateSetDatabaseConnectValues has not returned an expected response"))
-        console.log(chalk.red("Process Terminated"))
-        process.exit()
-    }
-}else{
-    if(!databaseValidation.databaseData || typeof databaseValidation !== "object"){
-        console.log(chalk.red("validateSetDatabaseConnectValues data has not returned an expected response"))
-        console.log(chalk.red("Process Terminated"))
-        process.exit()
-    }else{
-        // Success Case - Set the DB values from .env
-        setDatabaseValues(databaseValidation.databaseData)
-    }
+if(!databaseValidation || databaseValidation === undefined){
+    console.log(terminationString)
+    process.exit(); 
 }
-console.log(chalk.green("Database Fields Validation Completed\n"))
 // ----------------------
 
 // Validate presence of Coin API Key

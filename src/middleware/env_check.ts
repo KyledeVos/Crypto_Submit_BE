@@ -5,6 +5,7 @@
  */
 
 import {serverSetUp, databaseSetUpType} from '../types/server_database_types'
+import {trackLogger, styledLog} from "../utilities/logger"
 
 /**
  * Validates the .env fields used to start the server
@@ -13,48 +14,59 @@ import {serverSetUp, databaseSetUpType} from '../types/server_database_types'
  * @param server_mode_env - could be string or null
  * @returns String if there is an error, Object containing server_url (string), server_port (number), server_mode of type 'development_env'
  * @throws an error if types are mismatched or conversion of port from string to number fails. Returns a string
+ * @remarks this function will perform its own logging calls for internal errors
  */
 export const serverVariablesCheck = (
         server_url_env: string | undefined, 
         server_port_env: string | undefined, 
         server_mode_env: string | undefined 
-    ):serverSetUp | string => {
+    ):serverSetUp | undefined => {
     try{
+        styledLog("Called for Server Fields Validation", "info")
         //server_port conversion
         let server_port_number_env: number | undefined = undefined
 
         // dev check if env values were simply not set
         if(server_url_env === undefined && server_port_env === undefined && server_mode_env === undefined){
-            return "Missing Server ENV values - check if the .env was created with .env_blank template and values added"
+            trackLogger({action: "error_file", logType: "error", callFunction: "serverVariablesCheck", 
+                message: "Missing Server .env variables - check for missing or not-setup .env"})
+            return undefined
         }
 
         // check url
         if(!server_url_env || typeof server_url_env === undefined || server_url_env.trim() === ""){
-            return "Missing Server URL";
+            trackLogger({action: "error_file", logType: "error", callFunction: "serverVariablesCheck", message: "Missing server url"})
+            return undefined    
         }
 
         // check port
         if(!server_port_env || typeof server_port_env === undefined || server_port_env.trim() === ""){
-            return "Missing Server Port"
+            trackLogger({action: "error_file", logType: "error", callFunction: "serverVariablesCheck", message: "Missing Server Port"})
+            return undefined
         }
 
         // ensure server port is a valid number
         try{
             server_port_number_env = Number(server_port_env)
             if(!Number.isInteger(server_port_number_env) || Number.isNaN(server_port_number_env)){
-                return "Server port is not a valid int."
+                trackLogger({action: "error_file", logType: "error", callFunction: "serverVariablesCheck", message: "Server port is not a valid int"})
+                return undefined
             }
         }catch(error){
-            return `Error occured casting server port to number as: ${error}`
+                trackLogger({action: "error_file", logType: "error", callFunction: "serverVariablesCheck", 
+                    message: `Error occured casting server port to number as: ${error}`})
+                return undefined
         }
 
         // check mode has been set
         if(!server_mode_env || typeof server_mode_env === undefined || 
             typeof server_mode_env !== "string" || server_mode_env.trim() === "" ||
             (server_mode_env !== "development" && server_mode_env !== "production")){
-            return "Server mode is missing / not properly configured"
+                trackLogger({action: "error_file", logType: "error", callFunction: "serverVariablesCheck", 
+                    message: "Server mode is missing / not properly configured"})
+                return undefined
         }
-
+        styledLog(`Server .env fields valid. Checked at: ${new Date()}`, "success")
         // success return
         const dataReturn: serverSetUp = {
             server_url: server_url_env,
@@ -64,7 +76,9 @@ export const serverVariablesCheck = (
         return dataReturn
 
     }catch(error){
-        return `Error occured during server env checks as: ${error}`
+        trackLogger({action: "error_file", logType: "error", callFunction: "serverVariablesCheck", 
+            message: `Error occured during server env checks as: ${error}`})
+        return undefined
     }
 }
 
@@ -83,25 +97,38 @@ export const validateSetDatabaseConnectValues = (
     dbPassword: string | undefined,
     dbPort: string | undefined,
     dbConnectionLimit: string | undefined 
-): {error: boolean, message?: string, databaseData?: databaseSetUpType} => {
+): databaseSetUpType | undefined => {
+    styledLog("Called for Database Fields Validation", "info")
 
     // dev quick check that the .env was created and populated
     if(dbHostName === undefined && dbUser === undefined && dbPassword === undefined && dbPort === undefined && dbConnectionLimit === undefined){
-        return {error: true, message: "Missing Server ENV values - check if the .env was created with .env_blank template and values added"}
+        trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+            message: "Missing DB .env values - check for missing or not-setup .env"})
+        return
     }
 
     try{
         // blank or missing checks
         if(!dbHostName || dbHostName === undefined || typeof dbHostName !== "string" || dbHostName.trim() === ""){
-            return {error: true, message: "Missing DB Host Name"}
+            trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+            message: "Missing .env DB Host Name"})
+            return undefined
         }else if(!dbUser || dbUser === undefined || typeof dbUser !== "string" || dbUser.trim() === ""){
-            return {error: true, message: "Missing DB User"}
+            trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+            message: "Missing .env DB User"})
+            return undefined
         }else if(!dbPassword || dbPassword === undefined || typeof dbPassword !== "string" || dbPassword.trim() === ""){
-            return {error: true, message: "Missing DB Password"}
+            trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+            message: "Missing .env dbPassword"})
+            return undefined
         }else if(!dbPort || dbPort === undefined || typeof dbPort !== "string" || dbPort.trim() === ""){
-            return {error: true, message: "Missing DB Port"}
+            trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+            message: "Missing .env dbPort"})
+            return undefined
         }else if(!dbConnectionLimit || dbConnectionLimit === undefined || typeof dbConnectionLimit !== "string" || dbConnectionLimit.trim() === ""){
-            return {error: true, message: "Missing DB Connection Limit"}
+            trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+            message: "Missing .env dbConnectionLimit"})
+            return undefined
         }
 
         let dbPortNumber: number | undefined = undefined
@@ -111,39 +138,51 @@ export const validateSetDatabaseConnectValues = (
         try{
             dbPortNumber = Number(dbPort)
             if(!Number.isInteger(dbPortNumber) || Number.isNaN(dbPortNumber)){
-                return {error: true, message: "Database Port is not a Valid Integer"}
+                trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+                message: "Database Port is not a Valid Integer"})
+                return undefined
             }else if(dbPortNumber <= 0){
-                return {error: true, message: "Database Port is less than or equal to 0"}
+                trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+                message: "Database Port is less than or equal to 0"})
+                return undefined
             }
         }catch(error){
-            return {error: true, message: `Error occured in validateSetDatabaseConnectValues for database port cast as: ${error}`}
+            trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+            message: `Error occured for database port cast as: ${error}`})
+            return undefined
         }
 
         // attempt to cast connection limit to an integer
         try{
             dbConnectionLimitNumber = Number(dbConnectionLimit)
             if(!Number.isInteger(dbConnectionLimitNumber) || Number.isNaN(dbConnectionLimitNumber)){
-                return {error: true, message: "Database Connection Limit is not a Valid Integer"}
+                trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+                message: "Database Connection Limit is not a Valid Integer"})
+                return undefined
             }else if(dbConnectionLimitNumber <= 0){
-                return {error: true, message: "Database Connection Limit is less than or equal to 0"}
+                trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+                message: "Database Connection Limit is less than or equal to 0"})
+                return undefined
             }
         }catch(error){
-            return {error: true, message: `Error occured in validateSetDatabaseConnectValues for connection limit cast as: ${error}`}
+                trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+                message: `Error occured for connection limit cast as: ${error}`})
+                return undefined
         }
 
-        // Data is Valid - set data and return no error
-        return{
-            error: false,
-            databaseData: {
+        // Data is Valid
+        styledLog(`Database .env fields valid. Checked at: ${new Date()}`, "success")
+        return {
                 dbHostName: dbHostName,
                 dbUser: dbUser,
                 dbPassword: dbPassword,
                 dbPort: dbPortNumber,
                 dbConnectionLimit: dbConnectionLimitNumber
             }
-        }
     }catch(error){
-        return {error: true, message: `Error occured in validateSetDatabaseConnectValues as: ${error}`}
+        trackLogger({action: "error_file", logType: "error", callFunction: "validateSetDatabaseConnectValues", 
+        message: `Error occured as: ${error}`})
+        return undefined
     }
 }
 

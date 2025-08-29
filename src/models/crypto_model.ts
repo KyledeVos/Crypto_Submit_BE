@@ -7,7 +7,7 @@ import {cryptoMapDataType, cryptoGeneralResponseType} from "../types/crypto_type
 import {getCryptoCurrencyMapData} from "../services/crypto_service"
 
 /**
- * Determine if there is existing crypto map daa or not
+ * Determine if there is existing crypto map data or not
  * @returns count of number of rows 
  */
 export const checkExistingCryptoDataCount = async():Promise<number | string> => {
