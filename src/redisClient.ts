@@ -35,6 +35,12 @@ export class RedisControl {
     }
   };
 
+  /**
+   * Adds provided to redis under supplied key
+   * @param key string for identification - must have a match in 'refreshTimes'
+   * @param data data to be saved in redis
+   * @remarks this function performs its own logging of errors
+   */
   public checkAndAddToRedis = async (
     key: string,
     data: any
@@ -238,8 +244,5 @@ export class RedisControl {
         redisClient.quit();
       }
     }
-
-
-
   };
 }
