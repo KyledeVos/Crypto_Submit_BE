@@ -29,22 +29,31 @@ export const cryptoInitialCheckController = async():Promise<string> => {
     // Check if there is existing data
     const countResult = await checkExistingCryptoDataCount()
     if(typeof countResult === "string"){
-        console.log(chalk.red(countResult))
+        trackLogger({action: "error_file", logType: "error", callFunction: "cryptoInitialCheckController", 
+             message: countResult})
+             return "failure"
     }else{
         // for existing data, cannot write to the table directly but update instead
         if(countResult === 0){
+            trackLogger({action: "log_file", logType: "info", callFunction: "cryptoInitialCheckController -> populateInitialCryptoData", 
+                    message: "StartUp -> currency table row count 0 - performing data insert"})
             // blank table, perform full insert
             const populateResult = await populateInitialCryptoData(cryptoDataFormatted)
-            if(populateResult.message !== 'success'){
-                console.log(chalk.red(populateResult.message))
+            if(populateResult !== 'success'){
+                trackLogger({action: "error_file", logType: "error", callFunction: "cryptoInitialCheckController -> populateInitialCryptoData", 
+                    message: populateResult})
+                    return "failure"
             }
+            return 'success'
         }else {
             const updatedResult = await updateCryptoData(cryptoDataFormatted);
+            console.log("Updated result", updatedResult)
             if(updatedResult !== 'success'){
-               console.log(chalk.red(updatedResult)) 
+                trackLogger({action: "error_file", logType: "error", callFunction: "cryptoInitialCheckController -> updateCryptoData", 
+                    message: updatedResult})
+                return "failure"
             }
+            return 'success'
         }
     }
-
-    return "success"
 }

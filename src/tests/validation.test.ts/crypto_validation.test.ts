@@ -3,7 +3,7 @@
  * This is a testing module containing functions to test the validation functions in the crypto_validation module
  */
 
-import {retrieveCryptoMapData} from "../../models/crypto_model"
+import {retrieveFilterCryptoMapData} from "../../models/crypto_model"
 import {describe, test, expect} from "@jest/globals"
 import {validateCryptoMapResponse} from "../../validators/crypto_reponse_validator"
 import {cryptoMapDataRawType} from "../../types/crypto_types"
@@ -81,12 +81,11 @@ describe('testing validateCryptoMapResponse with pre-created data', ()=>{
 
 describe('testing validateCryptoMapResponse with data call', ()=>{
     test('Success Test', async () => {
-        const data = (await retrieveCryptoMapData()).data
+        const data = await retrieveFilterCryptoMapData()
 
         const expectedResult = true
         console.log("res", validateCryptoMapResponse(data))
 
         expect(validateCryptoMapResponse(data)).toEqual(expectedResult)
     })
-
 })

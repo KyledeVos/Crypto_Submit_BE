@@ -10,8 +10,9 @@ import {cryptoMapDataFilter} from "../utilities/crypto_filter"
 import {fundamentalSummaryFields} from "../constants/crypto_constants"
 
 /**
- * Determine if there is existing crypto map data or not
- * @returns count of number of rows 
+ * Determine if there is existing crypto map data or not by returning row count for 'CURRENCIES_TABLE_NAME'
+ * @returns count of number of rows, string of error message
+ * @remarks - does not perform internal logging
  */
 export const checkExistingCryptoDataCount = async():Promise<number | string> => {
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
@@ -74,17 +75,24 @@ export const retrieveFilterCryptoMapData = async (validate:boolean = false):Prom
 }
 
 
+/**
+ * Attempts to populate currencies table with summary data of desired currencies
+ * @param cryptoData array
+ * @returns string as 'success' or an error message
+ * @remarks This function does not check for existing data, intended to be called on startup and insert / update managed externally
+ */
+export const populateInitialCryptoData = async(cryptoData: cryptoMapDataType[]):Promise<string> => {
 
-export const populateInitialCryptoData = async(cryptoData: cryptoMapDataType[]):Promise<{message: string}> => {
-
+    // establish connection
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
 
     if(!dbConnection || dbConnection === undefined){
-        return {message: "checkCryptoInitial has missing dbConnection. Cannot perform check"}
+        return "checkCryptoInitial has missing dbConnection. Cannot perform check"
     }else if(cryptoData === undefined || !Array.isArray(cryptoData) || cryptoData.length === 0){
-        return {message: "checkCryptoInitial supplied with incorrect / missing data - cannot write to DB"}
+        return "checkCryptoInitial supplied with incorrect / missing data - cannot write to DB"
     }
 
+    // Query builder
     let insertQuery = `INSERT INTO ${CURRENCIES_TABLE_NAME} (currency_id, currency_name, currency_symbol, rank, is_active) VALUES `
 
     cryptoData.map((currentItem: cryptoMapDataType, outerIndex) => {
@@ -99,15 +107,22 @@ export const populateInitialCryptoData = async(cryptoData: cryptoMapDataType[]):
     })
     try{
         const insertResult = dbConnection.query(insertQuery)
-        return {message: "success"}
+        return "success"
     }catch(error){
-        return {message: `populateInitialCryptoData had error during SQL Insert as: ${error}`}
+        return `populateInitialCryptoData had error during SQL Insert as: ${error}`
     }finally{
         await dbConnection.release()
     }
 
 }
 
+/**
+ * Performs an update of crypto summmary data - rank and is_active field
+ * @param cryptoData array
+ * @returns string as 'success' or an error message
+ * @remarks row matching for update is based on currency name and currency id
+ * @remarks symbol is not updated
+ */
 export const updateCryptoData = async(cryptoData: cryptoMapDataType[]):Promise<string> => {
 
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
@@ -117,18 +132,21 @@ export const updateCryptoData = async(cryptoData: cryptoMapDataType[]):Promise<s
     }else if(cryptoData === undefined || !Array.isArray(cryptoData) || cryptoData.length === 0){
         return "updateCryptoData supplied with incorrect / missing data - cannot write to DB"
     }
-    let error_final: string = ''
-    cryptoData.map(async(currentItem: cryptoMapDataType) => {
-        let query = `UPDATE ${CURRENCIES_TABLE_NAME} SET rank = ${currentItem.rank}, is_active = ${currentItem.is_active}
-         WHERE currency_name = '${currentItem.name}' AND currency_id = ${currentItem.id}`
-         try{
-            await dbConnection.query(query)
-        
-         }catch(error){
-            error_final = `updateCryptoData error in SQL as: ${error}`
-         }
-    })
-    await dbConnection.release();
-
-    return 'success'
+    let internalError:string = ''
+    try{
+        cryptoData.forEach(async(currentItem: cryptoMapDataType) => {
+            let query = `UPDATE ${CURRENCIES_TABLE_NAME} SET rank = ${currentItem.rank}, is_active = ${currentItem.is_active}
+            WHERE currency_name = '${currentItem.name}' AND currency_id = '${currentItem.id}' AND currency_symbol = '${currentItem.symbol}'`
+            try{
+                await dbConnection.query(query)
+            }catch(error){
+                internalError = `${error}`
+            }
+        })
+        return internalError === "" ? 'success' : internalError
+    }catch(error){
+        return `Error during summary data update as: ${error}`
+    }finally{
+        await dbConnection.release();
+    }
 }

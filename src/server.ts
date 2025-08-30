@@ -102,8 +102,9 @@ const databaseInitialStarter = async () => {
         process.exit();
     }
 
-    // Perform initial data checks - falure to get data is not a process termination condition
-    // but should be monitored and checked if successful on startup
+    // Call for up to date data retrievals on startup  - once off call
+    // Failures here do not stop server running, but logs on startup need to be monitored for errors
+    // 1) Get latest summary data (data sppecific only to the currency) - formatted for this application
     const initialCryptoControllerResponse = await cryptoInitialCheckController();
     if(initialCryptoControllerResponse === "success"){
         styledLog("Initial Crypto Summary Data has been retrieved and checked", "success")
