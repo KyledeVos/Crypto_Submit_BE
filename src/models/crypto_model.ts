@@ -39,7 +39,6 @@ export const checkExistingCryptoDataCount = async():Promise<number | string> => 
  * @remarks this function performs its own internal logging
  */
 export const retrieveFilterCryptoMapData = async (validate:boolean = false):Promise<cryptoMapDataType[] | undefined> =>{
-
     try{
         const cryptoMapResponse: cryptoGeneralResponseType | undefined = await getCryptoCurrencyMapData() as cryptoGeneralResponseType | undefined;
         if(cryptoMapResponse === undefined){
@@ -59,6 +58,15 @@ export const retrieveFilterCryptoMapData = async (validate:boolean = false):Prom
                 if(typeof formattedData === "string"){
                     trackLogger({action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData -> cryptoMapDataFilter", 
                          message: formattedData})
+                    return undefined
+                }
+                const updatedResult = await updateCryptoData(formattedData);
+                console.log("Updated result", updatedResult)
+                if (updatedResult !== 'success') {
+                    trackLogger({
+                        action: "error_file", logType: "error", callFunction: "retrieveFilterCryptoMapData -> updateCryptoData",
+                        message: updatedResult
+                    })
                     return undefined
                 }
                 // success - return formatted data
