@@ -12,7 +12,8 @@
     "test_coin_api_validate": "jest coin_api_middleware.test.ts",
     "test_database_controller": "jest database_controller.test.ts",
     "test_simple_validations": "jest simple_validations.test.ts",
-    "test_crypto_validation_responses": "jest crypto_validation.test.ts"
+    "test_crypto_validation_responses": "jest crypto_validation.test.ts",
+    "test_redis_control": "jest redis.test.ts"
   },
   "keywords": [],
   "author": "",
