@@ -11,7 +11,7 @@ export const generalRouteMiddleWare = async (req: Request, res:Response, next: N
         const method = req.method
         const contentType = req.headers['content-type'];
 
-        if(contentType !== 'application/json'){
+        if(method !== "GET" && contentType !== 'application/json'){
             trackLogger({
                 action: "error_file", logType: "error", callFunction: "generalRouteMiddleWare",
                 message: "request does not have valid content type in headers"
