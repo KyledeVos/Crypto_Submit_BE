@@ -4,6 +4,10 @@ import {PoolConnection} from "mariadb"
 import {CRYPTO_CURRENCIES_START} from "../constants/crypto_constants"
 import {cryptoMapDataType, cryptoGeneralResponseType} from "../types/crypto_types"
 import {getCryptoCurrencyMapData} from "../services/crypto_service"
+import {trackLogger} from "../utilities/logger"
+import {validateCryptoMapResponse} from "../validators/crypto_reponse_validator"
+import {cryptoMapDataFilter} from "../utilities/crypto_filter"
+import {fundamentalSummaryFields} from "../constants/crypto_constants"
 
 /**
  * Determine if there is existing crypto map data or not
@@ -29,23 +33,43 @@ export const checkExistingCryptoDataCount = async():Promise<number | string> => 
 
 /**
  * Attempt to retrieve all crypto Map data (this is a summary of data for each crypto currency)
- * @returns object with message string either as 'success' or specifies an error that occured. data of type cryptoGeneralResponseType or undefined
+ * Calls for data formatting and filtering of key fields used by this application - see: fundamentalSummaryFields
+ * @returns formatted data array or undefined
+ * @remarks this function performs its own internal logging
  */
-export const retrieveCryptoMapData = async ():Promise<{message: string, data: cryptoGeneralResponseType | undefined} > =>{
+export const retrieveFilterCryptoMapData = async (validate:boolean = false):Promise<cryptoMapDataType[] | undefined> =>{
 
     try{
         const cryptoMapResponse: cryptoGeneralResponseType | undefined = await getCryptoCurrencyMapData() as cryptoGeneralResponseType | undefined;
         if(cryptoMapResponse === undefined){
-                return {message: "Failed to get Crypto Map Data", data: undefined}
+                trackLogger({action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData", 
+                         message: "getCryptoCurrencyMapData returned undefined"})
+                return undefined
         }else{
-            if (cryptoMapResponse.status && cryptoMapResponse.status === 200){
-                    return {message: "success", data: cryptoMapResponse.data.data}
+            if (cryptoMapResponse.status === 200){
+                // call for validation
+                const validated = validateCryptoMapResponse(cryptoMapResponse.data.data)
+                if(validated !== true){
+                    return undefined
+                }
+                //format and filter the data
+                const responseData = cryptoMapResponse.data.data
+                const formattedData = cryptoMapDataFilter(responseData, fundamentalSummaryFields)
+                if(typeof formattedData === "string"){
+                    trackLogger({action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData -> cryptoMapDataFilter", 
+                         message: formattedData})
+                    return undefined
+                }
+                // success - return formatted data
+                return formattedData
             }else{
-                return {message: `Failed to get Crypto Map data with status: ${cryptoMapResponse.status}`, data: undefined}
+                return undefined
             }
         } 
     }catch(error){
-       return {message: `Error occured in checkCryptoInitial for query as: ${error}`, data: undefined} 
+        trackLogger({action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData", 
+                         message: `Error during data retrieval as: ${error}`})
+       return undefined 
     }
 }
 

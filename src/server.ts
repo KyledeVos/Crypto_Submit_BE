@@ -105,8 +105,10 @@ const databaseInitialStarter = async () => {
     // Perform initial data checks - falure to get data is not a process termination condition
     // but should be monitored and checked if successful on startup
     const initialCryptoControllerResponse = await cryptoInitialCheckController();
-    if(initialCryptoControllerResponse === "succcess"){
-        styledLog("Initial Crypto Data has been retrieved and checked", "success")
+    if(initialCryptoControllerResponse === "success"){
+        styledLog("Initial Crypto Summary Data has been retrieved and checked", "success")
+    }else{
+        styledLog("Check logs and DB for 'cryptoInitialCheckController' logic - not marked as success", "error")
     }
 }
     // await getLatestData();

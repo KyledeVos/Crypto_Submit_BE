@@ -63,7 +63,5 @@ export const validateCryptoMapResponse = (mapDataRaw: any):boolean => {
             trackLogger({action: "error_file", logType: "error", callFunction: "validateCryptoMapResponsee", 
              message: "mapData raw has shown invalid data"})
         }
-        
-        console.log("FINAL", dataValid)
         return dataValid
 }
