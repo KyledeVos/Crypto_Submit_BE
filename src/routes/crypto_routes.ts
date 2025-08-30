@@ -2,12 +2,12 @@ import { Router } from "express";
 
 const cryptoRouter = Router()
 import { summaryDataRetrieval } from "../controllers/route_controllers/crypto_route_controller"
-
+import {generalRouteMiddleWare} from "../middleware/route_middleware"
 // ========================================================
 // GET ROUTES
 
 // Get Crypto Summary Data
-cryptoRouter.get("/summaryData", async (req, res) => {
+cryptoRouter.get("/summaryData", generalRouteMiddleWare, async (req, res) => {
     summaryDataRetrieval(req, res)
 })
 
