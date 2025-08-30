@@ -77,52 +77,5 @@ export const summaryDataRetrieval = async (req: Request, res: Response) => {
             await redisControl.checkAndAddToRedis("SummaryData", dataResult)
             res.status(200).json(dataResult)
         }
-
-        // // create redis client
-        // 
-        // const redisClient = await redisControl.createRedisClient();
-        // if(redisClient === undefined){
-        //     console.log(("Failed to Create A Redis Client"))
-        //     // no redis, have to return db data
-        //     const data = await callForSummaryData();
-        //     if(data === undefined){
-        //         res.status(500).json()
-        //     }else if(data.length == 0){
-        //         res.status(204).json()
-        //     }else{
-        //         res.status(200).json(data)
-        //     }
-        // }else{
-        //     console.log(("Redis Client Created"))
-        //     const value = await redisClient.get("summaryDataController")
-        //     // no current data
-        //     if (value === null){
-        //         const data = await callForSummaryData()
-        //         if(data && data.length > 0){
-        //             const redisData = {data: data, dateStamp: Date.now()}
-        //             redisClient.set("summaryDataController", JSON.stringify(redisData))
-        //         }else{
-        //             res.status(500).json()
-        //         }
-        //     }else{
-        //         //# current data
-        //         const currentDate = Date.now()
-        //         const redisDataJson = JSON.parse(value)
-        //         const timeDiffMilli = currentDate - redisDataJson.dateStamp;
-
-        //         // time diff greater than one minute, get new data and set in redis
-        //         if (timeDiffMilli > 60000){
-        //             const data = await callForSummaryData()
-        //             if(data && data.length > 0){
-        //                 const redisData = {data: data, dateStamp: Date.now()}
-        //                 redisClient.set("summaryDataController", JSON.stringify(redisData))
-        //             }else{
-        //                 res.status(500)
-        //             }
-        //         }
-        //         redisClient.quit()
-        //         res.status(200).json(redisDataJson.data)
-        //     }
-        //}
     }
 }
