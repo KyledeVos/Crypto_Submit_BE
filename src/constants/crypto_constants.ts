@@ -11,4 +11,14 @@ export const CRYPTO_CURRENCIES_START: string[] = [
     'XRP',
     'BNB'
 ]
+
+// Map of Crypto Names to their symbols
+export const CRYPTO_CURRENCIES_NAME_SYMBOL: Record<string, string> = {
+    'Bitcoin' : "BTC",
+    'Litecoin' : "LTC",
+    'Ethereum' : "ETH",
+    'XRP' : "XRP",
+    'BNB': "BNB"
+}
+
 export const fundamentalSummaryFields: string[] = ['id', 'name', 'symbol', 'rank', 'is_active']

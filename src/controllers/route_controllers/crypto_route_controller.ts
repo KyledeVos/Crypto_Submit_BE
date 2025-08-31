@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { RedisControl } from "../../redisClient"
 import { checkExistingCryptoDataCount, retrieveFilterCryptoMapData } from "../../models/crypto_summary_model"
+import { getFormatLatestDataAll, formatLatestSymbolToId } from "../../models/cryto_latest_data_model"
 import { trackLogger } from "../../utilities/logger"
 
 export const summaryDataRetrieval = async (req: Request, res: Response) => {
@@ -77,5 +78,16 @@ export const summaryDataRetrieval = async (req: Request, res: Response) => {
             await redisControl.checkAndAddToRedis("SummaryData", dataResult)
             res.status(200).json(dataResult)
         }
+    }
+}
+
+export const latestDataRetrieval = async (req: Request, res: Response) => {
+
+    const symbolMatchedData = await getFormatLatestDataAll()
+
+    console.log('symbolMatchedData', symbolMatchedData)
+    if (symbolMatchedData) {
+        const formattedData = await formatLatestSymbolToId(symbolMatchedData)
+        console.log("formatted controller", formattedData)
     }
 }

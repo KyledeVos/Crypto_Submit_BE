@@ -22,7 +22,7 @@ export type cryptoMapDataRawType = {
     status: number,
     first_historical_data: string,
     last_historical_data: string,
-    platform: null 
+    platform: null
 }
 
 
@@ -55,5 +55,23 @@ export type cryptoMapDataFundamental = {
     name: string,
     rank: string,
     isActive: string
+}
+
+// Current Data to track for each crypto currency
+export type currentDataType = {
+    symbol: string,
+    currentPrice: number,
+    volume24h: number,
+    marketCap: number,
+    marketCapDominance: number,
+}
+
+
+export type currentDataConformedType = {
+    currencyId: number,
+    currentPrice: number,
+    volume24h: number,
+    marketCap: number,
+    marketCapDominance: number,
 }
 

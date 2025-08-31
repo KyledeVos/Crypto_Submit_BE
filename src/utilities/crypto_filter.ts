@@ -3,7 +3,7 @@
  * This module provides util functions for crypto data filtering
  */
 
-import {cryptoUpToDateMapData, cryptoMapDataType} from "../types/crypto_types"
+import {cryptoUpToDateMapData, cryptoMapDataType, currentDataType} from "../types/crypto_types"
 import {CRYPTO_CURRENCIES_START} from "../constants/crypto_constants"
 
 /**
@@ -41,4 +41,28 @@ export const cryptoMapDataFilter = (cryptoDataRaw: any, fundamentalFields: strin
     }catch(error){
         return `An error occured during cryptoMapDataFilter filtering as: ${error}`
     }
+}
+
+/**
+ * Filter raw data to fields matching currentDataType
+ * @param symbol add an identifier to the data
+ * @param data to be filtered
+ * @returns currentdata or string if error
+ */
+export const filterLatestData = (symbol: string, data: any):currentDataType | string => {
+
+    if(data === undefined){
+        return "data is undefined"
+    }else if(symbol === undefined){
+        return "symbol is undefined"
+    }else{
+       return {
+        "symbol": symbol,
+        "currentPrice": data.price !== null ? data.price : 0,
+        "volume24h" : data.volume_24h !== null ?  data.volume_24h : 0,
+        "marketCap": data.market_cap !== null ? data.market_cap : 0,
+        "marketCapDominance": data.market_cap_dominance !== null ? data.market_cap_dominance : 0 ,
+       }
+    }
+
 }

@@ -83,8 +83,11 @@ export const getLatestData = async (crypto_symbol: string): Promise<cryptoGenera
                 }
             })
             const responseData = await latestDataResult.json()
-            console.log("latest", responseData)
-            return { status: responseData.status, data: responseData }
+            if (responseData) {
+                const latestData = responseData.data[crypto_symbol].quote.USD
+                return { status: 200, data: latestData }
+            }
+            return { status: 500, data: undefined }
         } catch (error) {
             trackLogger({
                 action: "error_file", logType: "error", callFunction: "getLatestData",
