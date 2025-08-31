@@ -15,6 +15,7 @@ export class RedisControl {
   // and to store keys allowed to use redis
   private refreshTimes: Record<string, number> = {
     "SummaryData": 60000,
+    "LatestData": 60000,
   };
 
   public createRedisClient = async (): Promise<RedisClientType | undefined> => {
@@ -61,7 +62,7 @@ export class RedisControl {
       }
       const redisData = { data: data, dateStamp: Date.now() };
       try {
-        redisClient.set("SummaryData", JSON.stringify(redisData));
+        redisClient.set(key, JSON.stringify(redisData));
         return "success";
       } catch (error) {
         trackLogger({
