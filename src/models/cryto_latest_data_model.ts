@@ -220,3 +220,43 @@ export const updateLatestTableData = async(data: currentDataConformedType[]):Pro
     }
 
 }
+
+export const getLatestTableData = async(symbol: string):Promise<currentDataConformedType[] | string> => {
+    const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
+
+    if (!dbConnection || dbConnection === undefined) {
+        return "getLatestTableData has missing dbConnection. Cannot perform check"
+    }else if(symbol === undefined || symbol.trim() === "" ){
+        return"getLatestTableData has missing symbol"
+    }
+    try {
+        let selectionQuery = `SELECT 
+        currencies.currency_name,
+        currencies.currency_symbol,
+        currencies.rank,
+        current.current_price,
+        current.volume_24h,
+        current.market_cap,
+        current.market_cap_dominance
+        FROM ${CURRENT_DATA_TABLE_NAME} AS current 
+        JOIN ${CURRENCIES_TABLE_NAME} ON 
+        current.currencies_id = currencies.currency_id 
+        WHERE currencies.currency_symbol =  '${symbol}'`
+
+        const selectionResult = await dbConnection.query(selectionQuery)
+        if(selectionResult.length > 0){
+            return selectionResult
+        }
+
+        return "failed"
+    } catch (error) {
+        return `Error during latest data update as: ${error}`
+    } finally {
+        await dbConnection.release();
+    }
+
+
+
+
+
+}

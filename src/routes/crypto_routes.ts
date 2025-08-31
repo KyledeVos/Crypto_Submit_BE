@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 const cryptoRouter = Router()
-import { summaryDataRetrieval } from "../controllers/route_controllers/crypto_route_controller"
+import { summaryDataRetrieval, latestDataRetrieval } from "../controllers/route_controllers/crypto_route_controller"
 import {generalRouteMiddleWare} from "../middleware/route_middleware"
 // ========================================================
 // GET ROUTES
@@ -14,9 +14,9 @@ cryptoRouter.get("/summaryData", generalRouteMiddleWare, async (req, res) => {
 cryptoRouter.post("/latestData", async (req, res) => {
     console.log("HIT latestData")
     console.log(req.body)
-    // latestDataRetrieval(req, res)
+    const retrievalResult = await latestDataRetrieval(req, res)
     // default for now
-    res.status(200).json()
+    
 })
 
 export default cryptoRouter 

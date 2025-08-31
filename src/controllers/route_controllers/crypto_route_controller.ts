@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { RedisControl } from "../../redisClient"
 import { checkExistingCryptoDataCount, retrieveFilterCryptoMapData } from "../../models/crypto_summary_model"
-import { getFormatLatestDataAll, formatLatestSymbolToId } from "../../models/cryto_latest_data_model"
+import { getFormatLatestDataAll, getLatestTableData, updateLatestTableData} from "../../models/cryto_latest_data_model"
 import { trackLogger } from "../../utilities/logger"
 import {currentDataConformedType} from "../../types/crypto_types"
 
@@ -82,16 +82,80 @@ export const summaryDataRetrieval = async (req: Request, res: Response) => {
     }
 }
 
-// export const latestDataRetrieval = async (req: Request, res: Response) => {
+/**
+ * Get the latest current_table data. First check redis - if expired then call for new data, update
+ * DB and then select data from DB
+ * @param req - attempts to get symbol from request body
+ */
+export const latestDataRetrieval = async (req: Request, res: Response) => {
 
-//     const formattedData: currentDataConformedType[] = await getFormatLatestDataAll()
+   // get symbol from request
+   const {symbol} = req.body
+   if(!symbol || symbol === undefined || typeof symbol !== "string" || symbol.trim() === ""){
+    res.status(400).json("missing symbol")
+   }
 
-//     console.log('symbolMatchedData', formattedData)
-//     if(symbolMatchedData === undefined){
+   // define key for summaryData - redis
+    const redisKey = "LatestData"
 
-//     }
-//     if (symbolMatchedData) {
-//         const formattedData = await formatLatestSymbolToId(symbolMatchedData)
-//         console.log("formatted controller", formattedData)
-//     }
-// }
+   // check redis for existing data
+   const redisControl = new RedisControl()
+    try {
+        //determine if the data is not present or has expired
+        const reloadNeeded = await redisControl.checkReloadNeeded(redisKey)
+        console.log("reload needed", reloadNeeded)
+        if (reloadNeeded === false) {
+
+            const data = await redisControl.getRedisData(redisKey)
+            console.log("redis data", data)
+            if (data != "failed") {
+                try {
+                    console.log("retuning from redis")
+                    // redis return
+                    const JsonData = JSON.parse(data)
+                    return res.status(200).json(JsonData.data)
+                } catch (error) {
+                    trackLogger({
+                        action: "error_file", logType: "error", callFunction: "summaryDataRetrieval",
+                        message: `Error during get data conversion as: ${error}`
+                    })
+                }
+            }
+        }
+    } catch (error) {
+        trackLogger({
+            action: "error_file", logType: "error", callFunction: "summaryDataRetrieval -> createRedisClient",
+            message: `Error during redis checks as: ${error}`
+        })
+    }
+
+    // At this point the data is either not present or has expired in redis
+
+    // API call for new data
+    console.log("CALLING FOR NEW LATEST DATA")
+    const latestDataFormatted: currentDataConformedType[] | undefined = await getFormatLatestDataAll()
+    if(latestDataFormatted === undefined || latestDataFormatted.length === 0){
+        // failed to get latest data
+        trackLogger({
+            action: "error_file", logType: "error", callFunction: "latestDataRetrieval -> getFormatLatestDataAll",
+            message: `latest data from API was undefined or empty`
+        })
+
+    }else{
+        // add data to redis
+        console.log("ADDING TO REDIS")
+        const redisResult = await redisControl.checkAndAddToRedis(redisKey, latestDataFormatted)
+        console.log("redisResult", redisResult)
+        const updateResult = await updateLatestTableData(latestDataFormatted)
+        if(updateResult !== "success"){
+            trackLogger({
+                action: "error_file", logType: "error", callFunction: "latestDataRetrieval -> updateLatestTableData",
+                message: updateResult
+            })
+        }
+    }
+
+    // return the latest table data from DB
+    const retrievalResult = await getLatestTableData(symbol)
+    return res.status(200).json(retrievalResult)
+}

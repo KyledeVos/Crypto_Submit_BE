@@ -87,7 +87,7 @@ export const cryptoInitialLatestCheckController = async():Promise<string> => {
         return "failure"
     }
 
-    //check for existin data to determine insert vs update query
+    //check for existing data to determine insert vs update query
     const dataCount = await checkLatestDataEmpty()
     if(dataCount === undefined || typeof dataCount === "string"){
         trackLogger({
@@ -116,7 +116,6 @@ export const cryptoInitialLatestCheckController = async():Promise<string> => {
         })
         }
         return updateResult
-        return "success"
     }
 
 
