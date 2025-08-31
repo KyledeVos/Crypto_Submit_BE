@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { RedisControl } from "../../redisClient"
-import { checkExistingCryptoDataCount, retrieveFilterCryptoMapData } from "../../models/crypto_model"
+import { checkExistingCryptoDataCount, retrieveFilterCryptoMapData } from "../../models/crypto_summary_model"
 import { trackLogger } from "../../utilities/logger"
 
 export const summaryDataRetrieval = async (req: Request, res: Response) => {

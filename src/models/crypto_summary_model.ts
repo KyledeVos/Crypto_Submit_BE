@@ -48,7 +48,6 @@ export const retrieveFilterCryptoMapData = async (validate: boolean = false): Pr
             return undefined
         } else {
             if (cryptoMapResponse.status === 200) {
-                console.log("(HBHJVV")
                 // call for validation
                 const validated = validateCryptoMapResponse(cryptoMapResponse.data.data)
                 if (validated !== true) {
@@ -66,7 +65,6 @@ export const retrieveFilterCryptoMapData = async (validate: boolean = false): Pr
                 }
                 const updatedResult = await updateCryptoData(formattedData);
 
-                console.log("Updated result", updatedResult)
                 if (updatedResult !== 'success') {
                     trackLogger({
                         action: "error_file", logType: "error", callFunction: "retrieveFilterCryptoMapData -> updateCryptoData",
@@ -169,6 +167,11 @@ export const updateCryptoData = async (cryptoData: cryptoMapDataType[]): Promise
     }
 }
 
+
+/**
+ * Retrieve all 
+ * @returns 
+ */
 export const getCurrenciesSummaryData = async (): Promise<cryptoMapDataType[]> => {
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
     console.log("HIT")

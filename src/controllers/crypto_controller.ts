@@ -2,7 +2,7 @@
  * @module crypto_controller.ts
  * This module provides a controller used for crypto initial data check
  */
-import { retrieveFilterCryptoMapData, populateInitialCryptoData, checkExistingCryptoDataCount, updateCryptoData } from "../models/crypto_model"
+import { retrieveFilterCryptoMapData, populateInitialCryptoData, checkExistingCryptoDataCount, updateCryptoData } from "../models/crypto_summary_model"
 import { cryptoMapDataFilter } from "../utilities/crypto_filter"
 import { validateCryptoMapResponse } from "../validators/crypto_reponse_validator"
 import { fundamentalSummaryFields } from "../constants/crypto_constants"
@@ -57,7 +57,6 @@ export const cryptoInitialCheckController = async (): Promise<string> => {
             return 'success'
         } else {
             const updatedResult = await updateCryptoData(cryptoDataFormatted);
-            console.log("Updated result", updatedResult)
             if (updatedResult !== 'success') {
                 trackLogger({
                     action: "error_file", logType: "error", callFunction: "cryptoInitialCheckController -> updateCryptoData",

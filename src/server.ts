@@ -6,7 +6,6 @@
 
 import express from 'express'
 import dotenv from 'dotenv'
-import chalk from 'chalk'
 import {Pool} from 'mariadb'
 import { corsMiddleWare} from './middleware/cors_middleware'
 import {DBController} from "./controllers/db_controller"
@@ -111,9 +110,11 @@ const databaseInitialStarter = async () => {
     }else{
         styledLog("Check logs and DB for 'cryptoInitialCheckController' logic - not marked as success", "error")
     }
-}
-    // await getLatestData();
 
+    await getLatestData("BTC");
+
+}
+    
 const serverStartUp = async () => {
         await databaseInitialStarter();
              // Create Server
