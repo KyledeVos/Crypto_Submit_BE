@@ -134,28 +134,30 @@ export const latestDataRetrieval = async (req: Request, res: Response) => {
     // API call for new data
     console.log("CALLING FOR NEW LATEST DATA")
     const latestDataFormatted: currentDataConformedType[] | undefined = await getFormatLatestDataAll()
+    
     if(latestDataFormatted === undefined || latestDataFormatted.length === 0){
         // failed to get latest data
         trackLogger({
             action: "error_file", logType: "error", callFunction: "latestDataRetrieval -> getFormatLatestDataAll",
             message: `latest data from API was undefined or empty`
         })
-
-    }else{
-        // add data to redis
-        console.log("ADDING TO REDIS")
-        const redisResult = await redisControl.checkAndAddToRedis(redisKey, latestDataFormatted)
-        console.log("redisResult", redisResult)
-        const updateResult = await updateLatestTableData(latestDataFormatted)
-        if(updateResult !== "success"){
-            trackLogger({
-                action: "error_file", logType: "error", callFunction: "latestDataRetrieval -> updateLatestTableData",
-                message: updateResult
-            })
-        }
+        return res.status(500).json("unable to update data")
     }
 
-    // return the latest table data from DB
     const retrievalResult = await getLatestTableData(symbol)
+    // add data to redis
+    console.log("ADDING TO REDIS")
+    const redisResult = await redisControl.checkAndAddToRedis(redisKey, retrievalResult)
+    console.log("redisResult", redisResult)
+    const updateResult = await updateLatestTableData(latestDataFormatted)
+    if(updateResult !== "success"){
+        trackLogger({
+            action: "error_file", logType: "error", callFunction: "latestDataRetrieval -> updateLatestTableData",
+            message: updateResult
+        })
+    }
+    
+
+    // return the latest table data from DB formatted
     return res.status(200).json(retrievalResult)
 }
