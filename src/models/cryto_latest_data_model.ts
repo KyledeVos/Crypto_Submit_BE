@@ -221,7 +221,7 @@ export const updateLatestTableData = async(data: currentDataConformedType[]):Pro
 
 }
 
-export const getLatestTableData = async(symbol: string):Promise<currentDataConformedType[] | string> => {
+export const getLatestTableData = async(symbol?: string):Promise<currentDataConformedType[] | string> => {
     console.log("CALLED")
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
 
@@ -241,8 +241,12 @@ export const getLatestTableData = async(symbol: string):Promise<currentDataConfo
         current.market_cap_dominance
         FROM ${CURRENT_DATA_TABLE_NAME} AS current 
         JOIN ${CURRENCIES_TABLE_NAME} ON 
-        current.currencies_id = currencies.currency_id 
-        WHERE currencies.currency_symbol =  '${symbol}'`
+        current.currencies_id = currencies.currency_id`
+        if(symbol && symbol !== undefined){
+            selectionQuery += ` WHERE currencies.currency_symbol =  '${symbol}'`
+        }
+        
+
 
         const selectionResult = await dbConnection.query(selectionQuery)
         if(selectionResult.length > 0){
@@ -260,9 +264,8 @@ export const getLatestTableData = async(symbol: string):Promise<currentDataConfo
     } finally {
         await dbConnection.release();
     }
+}
 
-
-
-
+export const getAllLatestData = () => {
 
 }
