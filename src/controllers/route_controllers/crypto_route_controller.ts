@@ -3,6 +3,7 @@ import { RedisControl } from "../../redisClient"
 import { checkExistingCryptoDataCount, retrieveFilterCryptoMapData } from "../../models/crypto_summary_model"
 import { getFormatLatestDataAll, formatLatestSymbolToId } from "../../models/cryto_latest_data_model"
 import { trackLogger } from "../../utilities/logger"
+import {currentDataConformedType} from "../../types/crypto_types"
 
 export const summaryDataRetrieval = async (req: Request, res: Response) => {
 
@@ -81,13 +82,16 @@ export const summaryDataRetrieval = async (req: Request, res: Response) => {
     }
 }
 
-export const latestDataRetrieval = async (req: Request, res: Response) => {
+// export const latestDataRetrieval = async (req: Request, res: Response) => {
 
-    const symbolMatchedData = await getFormatLatestDataAll()
+//     const formattedData: currentDataConformedType[] = await getFormatLatestDataAll()
 
-    console.log('symbolMatchedData', symbolMatchedData)
-    if (symbolMatchedData) {
-        const formattedData = await formatLatestSymbolToId(symbolMatchedData)
-        console.log("formatted controller", formattedData)
-    }
-}
+//     console.log('symbolMatchedData', formattedData)
+//     if(symbolMatchedData === undefined){
+
+//     }
+//     if (symbolMatchedData) {
+//         const formattedData = await formatLatestSymbolToId(symbolMatchedData)
+//         console.log("formatted controller", formattedData)
+//     }
+// }

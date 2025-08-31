@@ -12,7 +12,7 @@ import {DBController} from "./controllers/db_controller"
 import {serverVariablesCheck, validateSetDatabaseConnectValues, validateCoinAPIKey} from "./middleware/env_check"
 import {createAllTablesModel} from "../src/models/database_tables_creation"
 import {serverSetUp, development_env, databaseSetUpType} from "./types/server_database_types"
-import {cryptoInitialCheckController} from "./controllers/crypto_controller"
+import {cryptoInitialSummaryCheckController, cryptoInitialLatestCheckController} from "./controllers/crypto_startup_controller"
 import {getLatestData} from "../src/services/crypto_service"
 import {styledLog} from "./utilities/logger"
 
@@ -104,14 +104,22 @@ const databaseInitialStarter = async () => {
     // Call for up to date data retrievals on startup  - once off call
     // Failures here do not stop server running, but logs on startup need to be monitored for errors
     // 1) Get latest summary data (data sppecific only to the currency) - formatted for this application
-    const initialCryptoControllerResponse = await cryptoInitialCheckController();
+    const initialCryptoControllerResponse = await cryptoInitialSummaryCheckController();
     if(initialCryptoControllerResponse === "success"){
         styledLog("Initial Crypto Summary Data has been retrieved and checked", "success")
     }else{
-        styledLog("Check logs and DB for 'cryptoInitialCheckController' logic - not marked as success", "error")
+        styledLog("Check logs and DB for 'cryptoInitialSummaryCheckController' logic - not marked as success", "error")
     }
 
-    await getLatestData("BTC");
+    // 2) Call for population \ update of latestData for each currency
+    const latestDataControllerResponse = await cryptoInitialLatestCheckController();
+    if(latestDataControllerResponse === "success"){
+        styledLog("LatestData has been retrieved and checked", "success")
+    }else{
+        styledLog("Check logs and DB for 'cryptoInitialLatestCheckController' logic - not marked as success", "error")
+    }
+
+
 
 }
     

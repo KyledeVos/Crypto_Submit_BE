@@ -26,15 +26,15 @@ const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCI
     const currentDataTableCreationQuery:string =  `CREATE TABLE IF NOT EXISTS ${CURRENT_DATA_TABLE_NAME} (
         id INT NOT NULL AUTO_INCREMENT,
         ${CURRENCIES_TABLE_NAME}_id INT NOT NULL,
-        current_price DECIMAL NOT NULL,
-        volume_24h DECIMAL NOT NULL,
-        market_cap DECIMAL NOT NULL,
-        market_cap_dominance DECIMAL NOT NULL,
+        current_price DECIMAL (20,5) NOT NULL,
+        volume_24h DECIMAL(20,5) NOT NULL,
+        market_cap DECIMAL(20,5) NOT NULL,
+        market_cap_dominance DECIMAL (20,5) NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         CONSTRAINT fk_${CURRENCIES_TABLE_NAME}
-            FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (id)
+            FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (currency_id)
             ON DELETE CASCADE
             ON UPDATE CASCADE
     )`
@@ -49,7 +49,7 @@ const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCI
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         CONSTRAINT fk_percentage_${CURRENCIES_TABLE_NAME}
-            FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (id)
+            FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (currency_id)
             ON DELETE CASCADE
             ON UPDATE CASCADE
     )`
@@ -64,7 +64,7 @@ const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCI
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         CONSTRAINT fk_percentage_history_${CURRENCIES_TABLE_NAME}
-            FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (id)
+            FOREIGN KEY (${CURRENCIES_TABLE_NAME}_id) REFERENCES ${CURRENCIES_TABLE_NAME} (currency_id)
             ON DELETE CASCADE
             ON UPDATE CASCADE
     )`
