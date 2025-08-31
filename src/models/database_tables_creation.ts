@@ -11,6 +11,16 @@ import {trackLogger, styledLog} from "../utilities/logger"
 
 
 // define table creation queries
+const userTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS users (
+        id INT NOT NULL AUTO_INCREMENT,
+        userName VARCHAR(100) NOT NULL UNIQUE,
+        email VARCHAR(100) NOT NULL UNIQUE,
+        password VARCHAR(100) NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id)
+    )`
+
 const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCIES_TABLE_NAME} (
         id INT NOT NULL AUTO_INCREMENT,
         currency_id INT NOT NULL UNIQUE,
@@ -86,6 +96,15 @@ export const createAllTablesModel = async ():Promise<boolean> => {
     }
 
     try{
+
+        // create userTable
+        const userCreateResult = await tableCreationHelper(dbConnection, "users", userTableCreationQuery)
+        if(userCreateResult === false){
+            return false
+        }else{
+            styledLog(' - User Table created / present in Database', "success")
+        }
+
         // create currency table
         const currenyCreateResult = await tableCreationHelper(dbConnection, CURRENCIES_TABLE_NAME, currencyTableCreationQuery)
         if(currenyCreateResult === false){
