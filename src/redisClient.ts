@@ -16,6 +16,11 @@ export class RedisControl {
   private refreshTimes: Record<string, number> = {
     "SummaryData": 60000,
     "LatestData": 60000,
+    "LatestDataBTC": 60000,
+    "LatestDataLTC": 60000,
+    "LatestDataXRP": 60000,
+    "LatestDataETH": 60000,
+    "LatestDataBNB": 60000,
   };
 
   public createRedisClient = async (): Promise<RedisClientType | undefined> => {
