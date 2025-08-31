@@ -15,8 +15,7 @@ cryptoRouter.post("/latestData", async (req, res) => {
     await latestDataRetrieval(req, res)
 })
 
-cryptoRouter.post("/latestDataAll", async(req, res) => {
-    console.log("HIT ALL LATEST")
+cryptoRouter.get("/latestDataAll", async(req, res) => {
     latestDataAllRetrieval(req, res)
 })
 

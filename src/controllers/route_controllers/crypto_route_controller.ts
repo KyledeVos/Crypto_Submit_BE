@@ -164,8 +164,6 @@ export const latestDataRetrieval = async (req: Request, res: Response) => {
 
 export const latestDataAllRetrieval = async(req: Request, res: Response) => {
 
-    res.status(200).json()
-
    // define key for summaryData - redis
     const redisKey = "LatestData"
 
@@ -228,10 +226,8 @@ export const latestDataAllRetrieval = async(req: Request, res: Response) => {
         })
     }
     
-
     // return the latest table data from DB formatted
     return res.status(200).json(retrievalResult)
-
 }
 
 

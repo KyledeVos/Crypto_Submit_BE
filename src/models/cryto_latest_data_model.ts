@@ -227,8 +227,6 @@ export const getLatestTableData = async(symbol?: string):Promise<currentDataConf
 
     if (!dbConnection || dbConnection === undefined) {
         return "getLatestTableData has missing dbConnection. Cannot perform check"
-    }else if(symbol === undefined || symbol.trim() === "" ){
-        return"getLatestTableData has missing symbol"
     }
     try {
         let selectionQuery = `SELECT 
@@ -246,16 +244,20 @@ export const getLatestTableData = async(symbol?: string):Promise<currentDataConf
             selectionQuery += ` WHERE currencies.currency_symbol =  '${symbol}'`
         }
         
-
-
         const selectionResult = await dbConnection.query(selectionQuery)
-        if(selectionResult.length > 0){
-            selectionResult[0].rank = Number(selectionResult[0].rank)
-            selectionResult[0].current_price = Number(selectionResult[0].current_price)
-            selectionResult[0].volume_24h = Number(selectionResult[0].volume_24h)
-            selectionResult[0].market_cap = Number(selectionResult[0].market_cap)
-            selectionResult[0].market_cap_dominance = Number(selectionResult[0].market_cap_dominance)
-            return selectionResult[0]
+
+        const correctedData = selectionResult.map((item: any) => ({
+            ...item,
+            rank: Number(item.rank),
+            current_price: Number(item.current_price),
+            volume_24h: Number(item.volume_24h),
+            market_cap: Number(item.market_cap),
+            market_cap_dominance: Number(item.market_cap_dominance)
+        }))
+        if(symbol){
+            return correctedData[0]
+        }else{
+            return correctedData
         }
 
         return "failed"
