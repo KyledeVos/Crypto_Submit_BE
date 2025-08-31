@@ -27,6 +27,7 @@ const currencyTableCreationQuery:string = `CREATE TABLE IF NOT EXISTS ${CURRENCI
         id INT NOT NULL AUTO_INCREMENT,
         ${CURRENCIES_TABLE_NAME}_id INT NOT NULL,
         current_price DECIMAL NOT NULL,
+        volume_24h DECIMAL NOT NULL,
         market_cap DECIMAL NOT NULL,
         total_coins INTEGER NOT NULL,
         market_cap_dominance DECIMAL NOT NULL,
