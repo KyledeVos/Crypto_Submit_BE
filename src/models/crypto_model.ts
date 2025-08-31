@@ -1,33 +1,32 @@
-import {getDataBasePoolConnection} from "../controllers/db_controller"
-import {CURRENCIES_TABLE_NAME, CURRENT_DATA_TABLE_NAME, PERCENTAGE_CHANGE_RECENT_TABLE_NAME, PERCENTAGE_CHANGE_HISTORY_TABLE_NAME} from "../constants/constants_database"
-import {PoolConnection} from "mariadb"
-import {CRYPTO_CURRENCIES_START} from "../constants/crypto_constants"
-import {cryptoMapDataType, cryptoGeneralResponseType} from "../types/crypto_types"
-import {getCryptoCurrencyMapData} from "../services/crypto_service"
-import {trackLogger} from "../utilities/logger"
-import {validateCryptoMapResponse} from "../validators/crypto_reponse_validator"
-import {cryptoMapDataFilter} from "../utilities/crypto_filter"
-import {fundamentalSummaryFields} from "../constants/crypto_constants"
+import { getDataBasePoolConnection } from "../controllers/db_controller"
+import { CURRENCIES_TABLE_NAME, CURRENT_DATA_TABLE_NAME, PERCENTAGE_CHANGE_RECENT_TABLE_NAME, PERCENTAGE_CHANGE_HISTORY_TABLE_NAME } from "../constants/constants_database"
+import { PoolConnection } from "mariadb"
+import { cryptoMapDataType, cryptoGeneralResponseType } from "../types/crypto_types"
+import { getCryptoCurrencyMapData } from "../services/crypto_service"
+import { trackLogger } from "../utilities/logger"
+import { validateCryptoMapResponse } from "../validators/crypto_reponse_validator"
+import { cryptoMapDataFilter } from "../utilities/crypto_filter"
+import { fundamentalSummaryFields } from "../constants/crypto_constants"
 
 /**
  * Determine if there is existing crypto map data or not by returning row count for 'CURRENCIES_TABLE_NAME'
  * @returns count of number of rows, string of error message
  * @remarks - does not perform internal logging
  */
-export const checkExistingCryptoDataCount = async():Promise<number | string> => {
+export const checkExistingCryptoDataCount = async (): Promise<number | string> => {
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
 
-    if(!dbConnection || dbConnection === undefined){
+    if (!dbConnection || dbConnection === undefined) {
         return "checkExistingCryptoDataCount has missing dbConnection. Cannot perform count check"
     }
 
-    try{
+    try {
         const selectQuery = `SELECT COUNT(currency_name) AS COUNT  from ${CURRENCIES_TABLE_NAME}`
         const countResult = await dbConnection.query(selectQuery)
         return Number(countResult[0].COUNT);
-    }catch(error){
-        return  `checkExistingCryptoDataCount error occurs in SQL Query Execution as: ${error}`
-    }finally{
+    } catch (error) {
+        return `checkExistingCryptoDataCount error occurs in SQL Query Execution as: ${error}`
+    } finally {
         await dbConnection.release()
     }
 }
@@ -38,29 +37,35 @@ export const checkExistingCryptoDataCount = async():Promise<number | string> => 
  * @returns formatted data array or undefined
  * @remarks this function performs its own internal logging
  */
-export const retrieveFilterCryptoMapData = async (validate:boolean = false):Promise<cryptoMapDataType[] | undefined> =>{
-    try{
+export const retrieveFilterCryptoMapData = async (validate: boolean = false): Promise<cryptoMapDataType[] | undefined> => {
+    try {
         const cryptoMapResponse: cryptoGeneralResponseType | undefined = await getCryptoCurrencyMapData() as cryptoGeneralResponseType | undefined;
-        if(cryptoMapResponse === undefined){
-                trackLogger({action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData", 
-                         message: "getCryptoCurrencyMapData returned undefined"})
-                return undefined
-        }else{
-            if (cryptoMapResponse.status === 200){
+        if (cryptoMapResponse === undefined) {
+            trackLogger({
+                action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData",
+                message: "getCryptoCurrencyMapData returned undefined"
+            })
+            return undefined
+        } else {
+            if (cryptoMapResponse.status === 200) {
+                console.log("(HBHJVV")
                 // call for validation
                 const validated = validateCryptoMapResponse(cryptoMapResponse.data.data)
-                if(validated !== true){
+                if (validated !== true) {
                     return undefined
                 }
                 //format and filter the data
                 const responseData = cryptoMapResponse.data.data
                 const formattedData = cryptoMapDataFilter(responseData, fundamentalSummaryFields)
-                if(typeof formattedData === "string"){
-                    trackLogger({action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData -> cryptoMapDataFilter", 
-                         message: formattedData})
+                if (typeof formattedData === "string") {
+                    trackLogger({
+                        action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData -> cryptoMapDataFilter",
+                        message: formattedData
+                    })
                     return undefined
                 }
                 const updatedResult = await updateCryptoData(formattedData);
+
                 console.log("Updated result", updatedResult)
                 if (updatedResult !== 'success') {
                     trackLogger({
@@ -69,16 +74,21 @@ export const retrieveFilterCryptoMapData = async (validate:boolean = false):Prom
                     })
                     return undefined
                 }
-                // success - return formatted data
-                return formattedData
-            }else{
+
+                // fetch data from DB and return
+                const dataFromDB = await getCurrenciesSummaryData()
+                return dataFromDB
+
+            } else {
                 return undefined
             }
-        } 
-    }catch(error){
-        trackLogger({action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData", 
-                         message: `Error during data retrieval as: ${error}`})
-       return undefined 
+        }
+    } catch (error) {
+        trackLogger({
+            action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData",
+            message: `Error during data retrieval as: ${error}`
+        })
+        return undefined
     }
 }
 
@@ -89,14 +99,14 @@ export const retrieveFilterCryptoMapData = async (validate:boolean = false):Prom
  * @returns string as 'success' or an error message
  * @remarks This function does not check for existing data, intended to be called on startup and insert / update managed externally
  */
-export const populateInitialCryptoData = async(cryptoData: cryptoMapDataType[]):Promise<string> => {
+export const populateInitialCryptoData = async (cryptoData: cryptoMapDataType[]): Promise<string> => {
 
     // establish connection
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
 
-    if(!dbConnection || dbConnection === undefined){
+    if (!dbConnection || dbConnection === undefined) {
         return "checkCryptoInitial has missing dbConnection. Cannot perform check"
-    }else if(cryptoData === undefined || !Array.isArray(cryptoData) || cryptoData.length === 0){
+    } else if (cryptoData === undefined || !Array.isArray(cryptoData) || cryptoData.length === 0) {
         return "checkCryptoInitial supplied with incorrect / missing data - cannot write to DB"
     }
 
@@ -109,16 +119,16 @@ export const populateInitialCryptoData = async(cryptoData: cryptoMapDataType[]):
             const numberCheck = Number.isNaN(currentItem)
             insertQuery += numberCheck ? currentFieldValue : `'${currentFieldValue}'`
             Number(index) !== Object.keys(currentItem).length - 1 ?
-              insertQuery += ", " : 
-              Number(outerIndex) !== cryptoData.length -1 ? insertQuery += "), " : insertQuery += ")"
+                insertQuery += ", " :
+                Number(outerIndex) !== cryptoData.length - 1 ? insertQuery += "), " : insertQuery += ")"
         })
     })
-    try{
+    try {
         const insertResult = dbConnection.query(insertQuery)
         return "success"
-    }catch(error){
+    } catch (error) {
         return `populateInitialCryptoData had error during SQL Insert as: ${error}`
-    }finally{
+    } finally {
         await dbConnection.release()
     }
 
@@ -131,30 +141,54 @@ export const populateInitialCryptoData = async(cryptoData: cryptoMapDataType[]):
  * @remarks row matching for update is based on currency name and currency id
  * @remarks symbol is not updated
  */
-export const updateCryptoData = async(cryptoData: cryptoMapDataType[]):Promise<string> => {
+export const updateCryptoData = async (cryptoData: cryptoMapDataType[]): Promise<string> => {
 
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
 
-    if(!dbConnection || dbConnection === undefined){
+    if (!dbConnection || dbConnection === undefined) {
         return "updateCryptoData has missing dbConnection. Cannot perform check"
-    }else if(cryptoData === undefined || !Array.isArray(cryptoData) || cryptoData.length === 0){
+    } else if (cryptoData === undefined || !Array.isArray(cryptoData) || cryptoData.length === 0) {
         return "updateCryptoData supplied with incorrect / missing data - cannot write to DB"
     }
-    let internalError:string = ''
-    try{
-        cryptoData.forEach(async(currentItem: cryptoMapDataType) => {
+    let internalError: string = ''
+    try {
+        cryptoData.forEach(async (currentItem: cryptoMapDataType) => {
             let query = `UPDATE ${CURRENCIES_TABLE_NAME} SET rank = ${currentItem.rank}, is_active = ${currentItem.is_active}
             WHERE currency_name = '${currentItem.name}' AND currency_id = '${currentItem.id}' AND currency_symbol = '${currentItem.symbol}'`
-            try{
+            try {
                 await dbConnection.query(query)
-            }catch(error){
+            } catch (error) {
                 internalError = `${error}`
             }
         })
         return internalError === "" ? 'success' : internalError
-    }catch(error){
+    } catch (error) {
         return `Error during summary data update as: ${error}`
-    }finally{
+    } finally {
         await dbConnection.release();
     }
+}
+
+export const getCurrenciesSummaryData = async (): Promise<cryptoMapDataType[]> => {
+    const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
+    console.log("HIT")
+    if (!dbConnection || dbConnection === undefined) {
+        trackLogger({
+            action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData",
+            message: "updateCryptoData has missing dbConnection. Cannot perform check"
+        })
+        return []
+    }
+
+
+    try {
+        const query = `SELECT currency_id, currency_name,currency_symbol, rank, is_active FROM  ${CURRENCIES_TABLE_NAME} ORDER BY rank`
+        const dataResult = await dbConnection.query(query)
+        return dataResult
+    } catch (error) {
+        return []
+    } finally {
+        await dbConnection.release();
+    }
+
 }
