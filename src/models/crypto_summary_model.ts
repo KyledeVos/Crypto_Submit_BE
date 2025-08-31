@@ -34,10 +34,11 @@ export const checkExistingCryptoDataCount = async (): Promise<number | string> =
 /**
  * Attempt to retrieve all crypto Map data (this is a summary of data for each crypto currency)
  * Calls for data formatting and filtering of key fields used by this application - see: fundamentalSummaryFields
+ * @param apiReturn default false - explicit instruction to return data from the API call and not the DB needed for blank table
  * @returns formatted data array or undefined
  * @remarks this function performs its own internal logging
  */
-export const retrieveFilterCryptoMapData = async (validate: boolean = false): Promise<cryptoMapDataType[] | undefined> => {
+export const retrieveFilterCryptoMapData = async (apiReturn:boolean = false): Promise<cryptoMapDataType[] | undefined> => {
     try {
         const cryptoMapResponse: cryptoGeneralResponseType | undefined = await getCryptoCurrencyMapData() as cryptoGeneralResponseType | undefined;
         if (cryptoMapResponse === undefined) {
@@ -72,10 +73,15 @@ export const retrieveFilterCryptoMapData = async (validate: boolean = false): Pr
                     })
                     return undefined
                 }
+                // explicit instruction allowing DB fetc
+                if(apiReturn === false){
+                    // fetch data from DB and return
+                    const dataFromDB = await getCurrenciesSummaryData()
+                    return dataFromDB
+                }else{
+                    return formattedData
+                }
 
-                // fetch data from DB and return
-                const dataFromDB = await getCurrenciesSummaryData()
-                return dataFromDB
 
             } else {
                 return undefined
@@ -174,7 +180,6 @@ export const updateCryptoData = async (cryptoData: cryptoMapDataType[]): Promise
  */
 export const getCurrenciesSummaryData = async (): Promise<cryptoMapDataType[]> => {
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
-    console.log("HIT")
     if (!dbConnection || dbConnection === undefined) {
         trackLogger({
             action: "error_file", logType: "error", callFunction: "retrieveCryptoMapData",

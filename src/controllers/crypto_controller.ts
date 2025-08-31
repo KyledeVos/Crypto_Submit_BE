@@ -21,7 +21,7 @@ import chalk from "chalk"
 export const cryptoInitialCheckController = async (): Promise<string> => {
 
     // retrieve latest crypto summary data for currencies - formatted and filtered for this application
-    const cryptoDataFormatted = await retrieveFilterCryptoMapData()
+    const cryptoDataFormatted = await retrieveFilterCryptoMapData(true)
     if (cryptoDataFormatted === undefined) {
         return "failure"
     }
