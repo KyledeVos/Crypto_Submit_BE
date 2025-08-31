@@ -3,7 +3,7 @@
  * This module provides a controller used for crypto initial data check
  */
 import { retrieveFilterCryptoMapData, populateInitialCryptoData, checkExistingCryptoDataCount, updateCryptoData } from "../models/crypto_summary_model"
-import {getFormatLatestDataAll, checkLatestDataEmpty, startUpInsertLatestData} from "../models/cryto_latest_data_model"
+import {getFormatLatestDataAll, checkLatestDataEmpty, startUpInsertLatestData, updateLatestTableData} from "../models/cryto_latest_data_model"
 import { validateCryptoMapResponse } from "../validators/crypto_reponse_validator"
 import { fundamentalSummaryFields } from "../constants/crypto_constants"
 import { currentDataConformedType } from "../types/crypto_types"
@@ -108,7 +108,14 @@ export const cryptoInitialLatestCheckController = async():Promise<string> => {
         }
         return insertResult
     }else{
-        // data present, perform update
+        const updateResult = await updateLatestTableData(latestDataFormatted)
+        if(updateResult !== "success"){
+        trackLogger({
+            action: "error_file", logType: "error", callFunction: "cryptoInitialLatestCheckController -> startUpInsertLatestData",
+            message: updateResult
+        })
+        }
+        return updateResult
         return "success"
     }
 

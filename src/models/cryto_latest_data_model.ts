@@ -121,6 +121,10 @@ export const formatLatestSymbolToId = async(rawData: currentDataType[] ):Promise
     }
 }
 
+/**
+ * Determine if there is existing data in the current_data table
+ * @returns count of present rows, string for error
+ */
 export const checkLatestDataEmpty = async():Promise<number | string> => {
 
         const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
@@ -180,8 +184,39 @@ export const startUpInsertLatestData = async(data: currentDataConformedType[]):P
         } finally {
             await dbConnection.release()
         }
+}
 
+/**
+ * Perform an udpdae to existing current_table data
+ * @param data of type currentDataConformedType
+ * @returns success string, error
+ */
+export const updateLatestTableData = async(data: currentDataConformedType[]):Promise<string> => {
+    
+    const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
 
-
+    if (!dbConnection || dbConnection === undefined) {
+        return "updateLatestTableData has missing dbConnection. Cannot perform check"
+    } else if (data === undefined || !Array.isArray(data) || data.length === 0) {
+        return "updateLatestTableData supplied with incorrect / missing data - cannot write to DB"
+    }
+    let internalError: string = ''
+    try {
+        data.forEach(async (currentItem: currentDataConformedType) => {
+            let query = `UPDATE ${CURRENT_DATA_TABLE_NAME} SET current_price = ${currentItem.currentPrice}, volume_24h = ${currentItem.volume24h},
+            market_cap = ${currentItem.marketCap}, market_cap_dominance = ${currentItem.marketCapDominance}
+            WHERE currencies_id = '${currentItem.currencyId}'`
+            try {
+                await dbConnection.query(query)
+            } catch (error) {
+                internalError = `${error}`
+            }
+        })
+        return internalError === "" ? 'success' : internalError
+    } catch (error) {
+        return `Error during latest data update as: ${error}`
+    } finally {
+        await dbConnection.release();
+    }
 
 }
