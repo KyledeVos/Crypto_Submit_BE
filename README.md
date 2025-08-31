@@ -1,30 +1,35 @@
 # READ_ME
 
 ## Notes:
+
 1. This project uses typedoc mainly for comments consistency, but has the advantage<br>
-of also generating html doc files. The script to run it is in the package.json but this link<br> was helpful in getting it to run correctly from their site: https://typedoc.org/documents/Options.Input.html
+   of also generating html doc files. The script to run it is in the package.json but this link<br> was helpful in getting it to run correctly from their site: https://typedoc.org/documents/Options.Input.html
 
 ## Project Setup
 
 ### Precautions:
 
 1. The safety of these requirements is of the highest importance.<br>
-In this project you will see a .env_blank. The .env_blank<br>
-files contains the names of secure fields that the application uses but <br> has no actual data. The actual data goes in an untracked file that you need to create as '.env' created at the project root. Inside of this <br> file you will put the ACTUAL data.
-**NOTE:** Do not ever put actual data in the .env_blank or change the .git_ignore file to track a .env file. Doing so will make your confidential<br>
-data readily available on GitHub for users and bots to take.
+   In this project you will see a .env_blank. The .env_blank<br>
+   files contains the names of secure fields that the application uses but <br> has no actual data. The actual data goes in an untracked file that you need to create as '.env' created at the project root. Inside of this <br> file you will put the ACTUAL data.
+   **NOTE:** Do not ever put actual data in the .env_blank or change the .git_ignore file to track a .env file. Doing so will make your confidential<br>
+   data readily available on GitHub for users and bots to take.
 
 2. If you are modifying the project - NEVER use hard coded secure values / keys<br> in the project files. These values go in the .env file and absolutely nowhere else. Do NOT even add these values in temporarily to the code.
 
 ### Files Needed
+
 You will need the code for the Front-End and Backend of this application to be able to run it locally.
 You will need a few services installed on your machine as well which is in the setup steps below.
 
 ### File Setup
+
 After cloning the repos, at the project root you will need to create a .env file<br>
 Then copy the contents of the .env_blank file into your created '.env' file.<br>
+Add in the values needed for each field in the .env (missing values terminates the server run)
 
 ### API KEY
+
 This is a **DEMO** Project and is not intended for professional use. It does use an API key from 'CoinMarketCap'<br>
 You will need to visit their site, create an account and then get an API key to use in this project.<br>
 After you have created your .env from the .env_blank file, add your key next to the COIN_API_KEY field<br>
@@ -32,11 +37,12 @@ You are solely responsible for the use of services from 3rd party and must do so
 with their policies. Again, this is a student demo project and not meant for professional use.
 
 **NOTE:** A Missing key will fail server startup validations and terminate the server run
- 
+
 ### MariaDB
+
 1. This project uses **MariaDB** for the database. To make use of this you will need MariaDB<br>
-to be installed on your machine. The following is the installation process for windows but<br>
-you can research the steps needed for Mac/Linux.
+   to be installed on your machine. The following is the installation process for windows but<br>
+   you can research the steps needed for Mac/Linux.
 
 a. If you do not have MariaDB installed on your machine, visit the official MariaDB site and go to<br>
 their downloads page and donwload the MSI file. Note that these instructions are a simple guideline<br>
@@ -65,9 +71,9 @@ for example: netstat -ano |findstr :3306
 
 If set correctly, you will see a log that says it is listening on that port.
 
-g. Open Heidi SQL and on the home page, select the option for a new session. 
+g. Open Heidi SQL and on the home page, select the option for a new session.
 
-h. Give the new session a name (like MariaDBLocal or whatever you like). Then configure it on the right-hand side.<br> 
+h. Give the new session a name (like MariaDBLocal or whatever you like). Then configure it on the right-hand side.<br>
 The user should be root, enter the password that you set and that the TCP port is the same one used <br>
 during the MariaDB install. The HostName / IP should be 127.0.0.1 for your localhost as this project is set <br> to run locally.
 
@@ -76,3 +82,16 @@ i. If the above is done correctly, click "Open" and you should see the HeidiSQL 
 ### Redis
 
 You will need to have a redis server installed on your system and in an Ubuntu terminal run: "sudo systemctl start redis-server" to start the redis server
+
+## Project Run
+
+After completing the steps above in Project Setup, you can run this project following these steps in order
+
+1. Ensure you have created a .env file following the template and added in the values for your project - missing values will terminate the project run
+2. Ensure you have MySQL running on your machine
+3. Ensure you have started the redis server on your machine
+4. With a terminal open at the root of the project, run: "npm run start"
+
+You will see a series on console logs in the terminal as the application performs it's initial startup and checks.<br>
+There are critical steps involved in this process and if they fail the project run will be terminated<br>
+Follow the console logs to trace errors
