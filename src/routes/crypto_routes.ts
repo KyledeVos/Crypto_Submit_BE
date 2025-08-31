@@ -14,7 +14,7 @@ cryptoRouter.get("/summaryData", generalRouteMiddleWare, async (req, res) => {
 cryptoRouter.post("/latestData", async (req, res) => {
     console.log("HIT latestData")
     console.log(req.body)
-    const retrievalResult = await latestDataRetrieval(req, res)
+    await latestDataRetrieval(req, res)
     // default for now
     
 })

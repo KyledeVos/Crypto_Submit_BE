@@ -222,6 +222,7 @@ export const updateLatestTableData = async(data: currentDataConformedType[]):Pro
 }
 
 export const getLatestTableData = async(symbol: string):Promise<currentDataConformedType[] | string> => {
+    console.log("CALLED")
     const dbConnection: PoolConnection | undefined = await getDataBasePoolConnection();
 
     if (!dbConnection || dbConnection === undefined) {
@@ -245,7 +246,12 @@ export const getLatestTableData = async(symbol: string):Promise<currentDataConfo
 
         const selectionResult = await dbConnection.query(selectionQuery)
         if(selectionResult.length > 0){
-            return selectionResult
+            selectionResult[0].rank = Number(selectionResult[0].rank)
+            selectionResult[0].current_price = Number(selectionResult[0].current_price)
+            selectionResult[0].volume_24h = Number(selectionResult[0].volume_24h)
+            selectionResult[0].market_cap = Number(selectionResult[0].market_cap)
+            selectionResult[0].market_cap_dominance = Number(selectionResult[0].market_cap_dominance)
+            return selectionResult[0]
         }
 
         return "failed"
