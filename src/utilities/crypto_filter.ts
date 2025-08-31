@@ -34,9 +34,15 @@ export const cryptoMapDataFilter = (cryptoDataRaw: any, fundamentalFields: strin
                 })
                 return currentItem;
             }  
-        }).filter((item: object) => {
-            if(item !== null && item!== undefined && Object.keys(item).length > 0) return item
-        })
+        }).filter((item: any)=> {
+           return item && Object.keys(item).length > 0
+        }).map((item: any)=>({
+            currency_id: item.id,
+            currency_name: item.name,
+            currency_symbol: item.symbol,
+            rank: item.rank,
+            is_active: item.is_active
+        }))
         return filteredResults;
     }catch(error){
         return `An error occured during cryptoMapDataFilter filtering as: ${error}`

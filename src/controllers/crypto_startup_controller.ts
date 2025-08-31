@@ -5,7 +5,6 @@
 import { retrieveFilterCryptoMapData, populateInitialCryptoData, checkExistingCryptoDataCount, updateCryptoData } from "../models/crypto_summary_model"
 import {getFormatLatestDataAll, checkLatestDataEmpty, startUpInsertLatestData, updateLatestTableData} from "../models/cryto_latest_data_model"
 import { validateCryptoMapResponse } from "../validators/crypto_reponse_validator"
-import { fundamentalSummaryFields } from "../constants/crypto_constants"
 import { currentDataConformedType } from "../types/crypto_types"
 import { RedisControl } from "../redisClient"
 import { trackLogger, styledLog } from "../utilities/logger"
