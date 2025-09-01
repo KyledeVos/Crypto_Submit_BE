@@ -18,6 +18,7 @@ import {styledLog} from "./utilities/logger"
 
 // routes import
 import crypto_routes from './routes/crypto_routes'
+import userRouter from "./routes/user_routes"
 dotenv.config()
 
 // standard termination string
@@ -133,6 +134,7 @@ const serverStartUp = async () => {
     // setup routes
     app.use(express.json());
     app.use(crypto_routes);
+    app.use(userRouter);
 
     // simple route for basic response testing, but project must be in dev mode to run it
     if(process.env.MODE === 'development'){
