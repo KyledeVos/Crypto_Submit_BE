@@ -103,7 +103,6 @@ export const latestDataRetrieval = async (req: Request, res: Response) => {
     try {
         //determine if the data is not present or has expired
         const reloadNeeded = await redisControl.checkReloadNeeded(redisKey)
-        console.log("reload needed", reloadNeeded)
         if (reloadNeeded === false) {
 
             const data = await redisControl.getRedisData(redisKey)
@@ -132,7 +131,6 @@ export const latestDataRetrieval = async (req: Request, res: Response) => {
     // At this point the data is either not present or has expired in redis
 
     // API call for new data
-    console.log("CALLING FOR NEW LATEST DATA")
     const latestDataFormatted: currentDataConformedType[] | undefined = await getFormatLatestDataAll()
     
     if(latestDataFormatted === undefined || latestDataFormatted.length === 0){
@@ -146,9 +144,7 @@ export const latestDataRetrieval = async (req: Request, res: Response) => {
 
     const retrievalResult = await getLatestTableData(symbol)
     // add data to redis
-    console.log("ADDING TO REDIS")
     const redisResult = await redisControl.checkAndAddToRedis(redisKey, retrievalResult)
-    console.log("redisResult", redisResult)
     const updateResult = await updateLatestTableData(latestDataFormatted)
     if(updateResult !== "success"){
         trackLogger({
